@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/style.min.css">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="http://static.gtmetrix.com/r120/js/excanvas.min.js"></script>
+    <![endif]-->
+    <script src="/static/js/gtmetrix.min.js" type="text/javascript"></script>
+    <script src="/static/js/gtmetrix.graphs.min.js" type="text/javascript"></script>
+    <script src="/static/js/base.js" type="text/javascript"></script>
+</head>
+<body class="page-compare">
+    <div class="header">
+        <div class="header-wrapper">
+            <div class="header-banner-links">
+                <a href="#" class="login-modal-trigger" data-ga-location="top nav">Login</a>
+                | <a href="#" class="signup-modal-trigger" data-ga-location="top nav">Sign Up</a>
+            </div>
+            <a class="header-logo" href="#">GTmetrix</a>
+            <ul class="header-nav clear">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Recommendations</a></li>
+                <li><a href="#">Top 1000</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="#">Locations</a></li>
+                <li><a href="#">Contact</a></li>
+                <li class="pro-gtmetrix"><a href="#" class="pro-gtmetrix-button"></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content-wrapper clear">
+        <div class="compare-infos compare-2infos clear">
+            <div class="compare-info-misc">
+                <h1>Comparison Report</h1>
+                <span class="report-timestamp">Monday, March 24, 2014, 7:11 PM</span>
+                <a href="#" class="button compare-button compare-modal-trigger">Add Another URL</a>
+            </div>
+            {% include 'compare_info.html' %}
+        </div>
+        <div class="compare-summaries compare-2summaries clear">
+            <h2>Summaries</h2>
+            <div class="compare-summary-label">
+                <label>Page Speed Grade</label><br>
+                <label>YSlow Grade</label><br>
+                <label>Page load time</label><br>
+                <label>Total page size</label><br>
+                <label>Total # of requests</label>
+            </div>
+            {% include 'compare_summary.html' %}
+        </div>
+        <h2>Breakdown</h2>
+        <ul class="tabs clear">
+            <li class="page-speed-tab"><a href="#report-page-speed" class="selected">Page Speed</a></li>
+            <li class="yslow-tab"><a href="#report-yslow">YSlow</a></li>
+            <li class="timeline-tab"><a href="#report-timeline">Timeline</a></li>
+            <li class="graphs-tab"><a href="#report-graphs">Graphs</a></li>
+        </ul>
+        <div class="tab-panes box">
+            <div id="report-pagespeed" style="display: block;">
+                {% include 'pagespeed.html' %}
+            </div>
+            <div id="report-yslow" style="display: none;">
+                {% include 'yslow.html' %}
+            </div>
+            <div id="report-timeline" style="display: none;">
+
+            </div>
+            <div id="report-graphs" style="display: none;">
+
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <ul class="footer-links clear">
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li class="last">© 1995-2014 Gossamer Threads, Inc.</li>
+        </ul>
+    </div>
+
+
+    <!-- Modal -->
+
+    <div class="modal" id="login-modal"></div>
+    <div class="modal" id="signup-modal"></div>
+    <div class="modal" id="lostpw-modal"></div>
+    <div class="modal" id="waterfall-modal"></div>
+    <div class="modal" id="compare-modal">
+        <h2>Add Another URL</h2>
+        <p>
+            You can compare the performance of up to <strong>4</strong> URLs.
+        </p>
+        <form action="http://gtmetrix.com/analyze.html" method="post">
+            <input type="hidden" name="bare" value="1">
+            <label for="compare-url">Analyze this URL and add it to the comparison:</label>
+            <input type="text" name="url" id="compare-url" value="" class="input-text">
+            <button type="submit" value="Go" class="go-button">Go</button>
+            <button type="button" class="modal-close">Close</button>
+        </form>
+    </div>
+    <div class="modal" id="analyze-modal">
+        <div id="analyze-modal-content"></div>
+        <button type="button" class="modal-close">Close</button>
+    </div>
+
+</body>
+</html>
