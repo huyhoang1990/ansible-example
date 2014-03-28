@@ -34,7 +34,7 @@
         <div class="compare-infos compare-2infos clear">
             <div class="compare-info-misc">
                 <h1>Comparison Report</h1>
-                <span class="report-timestamp">Monday, March 24, 2014, 7:11 PM</span>
+                {% include 'compare_info_misc.html' %}
                 <a href="#" class="button compare-button compare-modal-trigger">Add Another URL</a>
             </div>
             {% include 'compare_info.html' %}
@@ -92,7 +92,7 @@
         <p>
             You can compare the performance of up to <strong>4</strong> URLs.
         </p>
-        <form action="http://gtmetrix.com/analyze.html" method="post">
+        <form action="/pagespeed" method="post">
             <input type="hidden" name="bare" value="1">
             <label for="compare-url">Analyze this URL and add it to the comparison:</label>
             <input type="text" name="url" id="compare-url" value="" class="input-text">

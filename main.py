@@ -8,6 +8,7 @@ Nhớ cài phantomjs
 from flask import Flask, jsonify, request, render_template, url_for
 import requests
 from commands import getstatusoutput
+from time import strftime
 import settings
 
 app = Flask(__name__)
@@ -15,7 +16,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    get_time = '%s, %s %s, %s, %s' % \
+               (strftime("%a"), strftime("%b"), strftime("%d"),
+                strftime("%Y"), strftime("%I:%M %p"))
+
+    data = {
+        'time': get_time,
+    }
+
+    return render_template('base.html', **data)
 
 
 @app.route('/pagespeed', methods=['POST', 'GET'])
