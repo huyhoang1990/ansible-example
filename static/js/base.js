@@ -146,10 +146,10 @@ function updateGraphs() {
 
 $(document).ready(function() {
   updateGraphs();
-
   $('.tabs').data('tabs').onClick(function(clickEvent, index) {
     if (this.getPanes().get(index).id == 'report-graphs') {
       updateGraphs();
     }
   });
+
 });

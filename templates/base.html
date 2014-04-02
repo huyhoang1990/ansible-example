@@ -37,7 +37,7 @@
                 {% include 'compare_info_misc.html' %}
                 <a href="#" class="button compare-button compare-modal-trigger">Add Another URL</a>
             </div>
-            {% include 'compare_info.html' %}
+            <!--compare_info-->
         </div>
         <div class="compare-summaries compare-2summaries clear">
             <h2>Summaries</h2>
@@ -48,7 +48,7 @@
                 <label>Total page size</label><br>
                 <label>Total # of requests</label>
             </div>
-            {% include 'compare_summary.html' %}
+            <!--compare_summary-->
         </div>
         <h2>Breakdown</h2>
         <ul class="tabs clear">
@@ -87,23 +87,30 @@
     <div class="modal" id="signup-modal"></div>
     <div class="modal" id="lostpw-modal"></div>
     <div class="modal" id="waterfall-modal"></div>
-    <div class="modal" id="compare-modal">
+    <div class="modal" id="compare-modal">  <!-- base -->
         <h2>Add Another URL</h2>
         <p>
             You can compare the performance of up to <strong>4</strong> URLs.
         </p>
-        <form action="/pagespeed" method="post">
+        <form id="analyze" action="/compare_info" method="post">
             <input type="hidden" name="bare" value="1">
             <label for="compare-url">Analyze this URL and add it to the comparison:</label>
-            <input type="text" name="url" id="compare-url" value="" class="input-text">
+            <input type="text" name="compare-url" id="compare-url" value="" class="input-text">
             <button type="submit" value="Go" class="go-button">Go</button>
-            <button type="button" class="modal-close">Close</button>
+            <button id="analyzebutton" type="button" class="modal-close">Close</button>
         </form>
     </div>
-    <div class="modal" id="analyze-modal">
-        <div id="analyze-modal-content"></div>
-        <button type="button" class="modal-close">Close</button>
+    <div class="modal" id="analyze-modal"> <!-- base -->
+       <div id="analyze-modal-content"> <!-- base -->
+          <h1>Analyzing your URL... <a id="link" href="" target="_blank" rel="nofollow"></a></h1>
+          <div>
+             <div id="screenshot">
+                <img src="/static/img/scanner.png" alt="" id="scanner">
+             </div>
+          </div>
+          <div id="status">Sorry, but we're a bit backed up right now.</div>
+       </div>
+       <button type="button" class="modal-close">Close</button>
     </div>
-
 </body>
 </html>
