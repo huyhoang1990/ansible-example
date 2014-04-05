@@ -1,14 +1,7 @@
 #! coding: utf-8
 __author__ = 'thanhdl'
 
-"""
-Nhớ cài phantomjs
-"""
-
 from flask import Flask, jsonify, request, render_template, url_for, redirect
-import requests
-from commands import getstatusoutput
-import settings
 import api
 
 app = Flask(__name__)
@@ -22,66 +15,53 @@ def index():
     return render_template('base.html', **data)
 
 
-@app.route('/pagespeed', methods=['POST', 'GET'])
-def pagespeed():
-    error = None
-    if request.method == 'POST':
-        url = request.form['url']
-        if url:
-            url = '%s%s' % (settings.API_URL, url)
-            result = requests.get(url)
-            if result:
-                return jsonify(result.json())
-            else:
-                error = 'Invalid url'
-                return render_template('error.html', error=error)
-        else:
-            error = 'Please enter a valid url'
-            return render_template('error.html', error=error)
-    else:
-        return render_template('error.html', error=error)
-
-
-@app.route('/yslow', methods=['POST', 'GET'])
-def yslow():
-    error = None
-    if request.method == 'POST':
-        url = request.form['url']
-        if url:
-            command = 'phantomjs %s --info all %s' % (settings.YSLOW_JS, url)
-            print command
-            status, output = getstatusoutput(command)
-            if status == 0:
-                return output
-            else:
-                return render_template('error.html', error=error)
-        else:
-            error = 'Invalid url'
-            return render_template('error.html', error=error)
-    else:
-        return render_template('error.html', error=error)
-
-
 @app.route('/compare_info', methods=['POST', 'GET'])
 def compare_info():
     if request.method == 'POST':
         if request.form.get('compare-url'):
             url = request.form.get('compare-url')
+            r_pagespeed = api.pagespeed(url)
+            import pdb
+            pdb.set_trace()
+            r_yslow = api.yslow(url)
             bg = 'http://api.thumbalizr.com/?url=%s&width=172' % url
+
             dict_info = {
                 'bg': bg,
                 'link': url,
                 'time': api.get_time()
             }
+
             dict_summary = {
-                'pagespeed_score': api.pagespeed(url)['score'],
-                'yslow_score': api.yslow(url)['score']
+                'pagespeed_score': r_pagespeed['score'],
+                'yslow_score': r_yslow['o'],
+                'pageload_time': '%0.2f' % (float(r_yslow['lt'])/1000),
+                'page_size': api.convert_size(float(r_yslow['w'])),
+                'total_request': r_yslow['r']
             }
+
+            title_yslow = []
+            for key in r_yslow['g']:
+                title_yslow.append(key)
+
+            dict_yslow = []
+            for i in title_yslow:
+                if 'score' in r_yslow['g'][i]:
+                    dict_yslow.append(r_yslow['g'][i]['score'])
+                else:
+                    dict_yslow.append('n/a')
+
+            dict_pagespeed = []
+
             info = render_template('compare_info.html', **dict_info)
             summary = render_template('compare_summary.html', **dict_summary)
+            result_yslow = render_template('yslow_results.html', dict_yslow=dict_yslow)
+            result_pagespeed = render_template('pagespeed_results.html', dict_pagespeed=dict_pagespeed)
             result = {
                 'info': info,
-                'summary': summary
+                'summary': summary,
+                'result_yslow': result_yslow,
+                'result_pagespeed': result_pagespeed
             }
             return jsonify(result)
         else:

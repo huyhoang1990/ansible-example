@@ -1,18 +1,9 @@
 <div class="compare-summary compare-summary1 box">
     <div class="compare-grades">
-        <span class="compare-best">B (88%)</span><br>
-        <span class="">B (84%)</span><br>
+        <span class="">({{ pagespeed_score }}%)</span><br>
+        <span class="">({{ yslow_score }}%)</span><br>
     </div>
-    <span class="compare-best">2.13s</span><br>
-    <span class="compare-best">894KB</span><br>
-    <span class="compare-worst">53</span>
-</div>
-<div class="compare-summary compare-summary2 box">
-    <div class="compare-grades">
-        <span class="compare-worst">C (78%)</span> <span class="compare-grade-worse">-10%</span><br>
-        <span class="">B (84%)</span><br>
-    </div>
-    <span class="compare-worst">5.47s</span> <span class="compare-grade-worse">+3.35s</span><br>
-    <span class="compare-worst">1.56MB</span> <span class="compare-grade-worse">+705KB</span><br>
-    <span class="compare-best">49</span> <span class="compare-grade-better">-4</span>
+    <span class="">{{ pageload_time }}s</span><br>
+    <span class="">{{ page_size }}</span><br>
+    <span class="">{{ total_request }}</span>
 </div>
