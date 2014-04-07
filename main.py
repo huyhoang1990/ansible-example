@@ -21,8 +21,6 @@ def compare_info():
         if request.form.get('compare-url'):
             url = request.form.get('compare-url')
             r_pagespeed = api.pagespeed(url)
-            import pdb
-            pdb.set_trace()
             r_yslow = api.yslow(url)
             bg = 'http://api.thumbalizr.com/?url=%s&width=172' % url
 
@@ -51,7 +49,20 @@ def compare_info():
                 else:
                     dict_yslow.append('n/a')
 
+            title_pagespeed = []
+            for key in r_pagespeed['formattedResults']['ruleResults']:
+                title_pagespeed.append(key)
+
             dict_pagespeed = []
+            for i in title_pagespeed:
+                if 'ruleImpact' in r_pagespeed['formattedResults']['ruleResults'][i]:
+                    data = (1 - r_pagespeed['formattedResults']['ruleResults'][i]['ruleImpact'])*100
+                    if data < 0:
+                        dict_pagespeed.append('n/a')
+                    else:
+                        dict_pagespeed.append(int(data))
+                else:
+                    dict_pagespeed.append('n/a')
 
             info = render_template('compare_info.html', **dict_info)
             summary = render_template('compare_summary.html', **dict_summary)
