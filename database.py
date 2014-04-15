@@ -1,5 +1,3 @@
-import pymongo
-
 __author__ = 'thanhdl'
 
 from pymongo import Connection, errors
@@ -25,12 +23,10 @@ def get_pagespeed_by_id(id):
         return False
 
 
-def insert_pagespeed(url, title, status_code, dict_info):
+def insert_pagespeed(url, dict_info):
     try:
         result = pagespeedcollection.insert({
             'url': url,
-            'title': title,
-            'status_code': status_code,
             'info': dict_info
         })
         return result
@@ -81,11 +77,11 @@ def get_harviewer_by_id(id):
         return False
 
 
-def insert_harviewer(url, dict_info):
+def insert_harviewer(url, directory):
     try:
         result = harviewercollection.insert({
             'url': url,
-            'info': dict_info
+            'directory': directory
         })
         return result
     except errors.ConnectionFailure:

@@ -11,6 +11,7 @@ import settings
 import requests
 from commands import getstatusoutput
 from time import strftime
+from datetime import datetime
 import xmltodict
 import json
 import math
@@ -29,6 +30,7 @@ def pagespeed(url):
         url = '%s%s' % (settings.API_URL, url)
         result = requests.get(url)
         if result:
+            database.insert_pagespeed(url, result.json())
             return result.json()
         else:
             return False
@@ -42,6 +44,7 @@ def yslow(url):
         status, output = getstatusoutput(command)
         if status == 0:
             result = json.dumps(xmltodict.parse(output))
+            database.insert_yslow(url, json.loads(result)['results'])
             return json.loads(result)['results']
         else:
             return False
@@ -65,10 +68,14 @@ def convert_size(size):
 
 def har_viewer(url):
     if url:
-        command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, settings.HARSTORE)
+        url = url.strip()
+        t = str(datetime.now()).split('.', 1)[0].replace(' ', '+')
+        directory = settings.HARSTORE + url.split('/', 3)[2] + '+' + t + '.com.har'
+        command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, directory)
         status, output = getstatusoutput(command)
         if status == 0:
-            return settings.HARSTORE
+            database.insert_harviewer(url, directory)
+            return directory
         else:
             return False
     else:
