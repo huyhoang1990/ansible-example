@@ -2,41 +2,47 @@ __author__ = 'thanhdl'
 
 from pymongo import Connection, errors
 from bson.objectid import ObjectId
+import time
 
 DATABASE_HOST = '127.0.0.1'
 DATABASE_NAME = 'test'
 DATABASE_PORT = 27017
 
-connection = Connection(DATABASE_HOST, DATABASE_PORT)
-db = connection[DATABASE_NAME]
+CONNECTION = Connection(DATABASE_HOST, DATABASE_PORT)
+DB = CONNECTION[DATABASE_NAME]
 
-pagespeedcollection = db.pagespeedcollection
-yslowcolletion = db.yslowcolletion
-harviewercollection = db.harviewercollection
+PAGESPEED = DB.pagespeed
+YSLOW = DB.yslow
+HAR = DB.har
 
 
 def get_pagespeed_by_id(id):
     try:
-        result = pagespeedcollection.find_one({'_id': ObjectId(id)})
-        return result
+        pagespeed_info = PAGESPEED.find_one({'_id': ObjectId(id)})
+        return pagespeed_info
     except errors.OperationFailure, errors.ConnectionFailure:
         return False
 
 
 def insert_pagespeed(url, dict_info):
     try:
-        result = pagespeedcollection.insert({
-            'url': url,
-            'info': dict_info
-        })
-        return result
+        if not PAGESPEED.find_one({'url': url}):
+            t = time.time()
+            pagespeed_id = PAGESPEED.insert({
+                'url': url,
+                'info': dict_info,
+                'time': t
+            })
+            return pagespeed_id
+        else:
+            return False
     except errors.ConnectionFailure:
         return False
 
 
 def remove_pagespeed_by_id(id):
     try:
-        result = pagespeedcollection.remove({'_id': ObjectId(id)})
+        PAGESPEED.remove({'_id': ObjectId(id)})
         return True
     except errors.ConnectionFailure:
         return False
@@ -44,26 +50,31 @@ def remove_pagespeed_by_id(id):
 
 def get_yslow_by_id(id):
     try:
-        result = yslowcolletion.find_one({'_id': ObjectId(id)})
-        return result
+        yslow_info = YSLOW.find_one({'_id': ObjectId(id)})
+        return yslow_info
     except errors.OperationFailure, errors.ConnectionFailure:
         return False
 
 
 def insert_yslow(url, dict_info):
     try:
-        result = yslowcolletion.insert({
-            'url': url,
-            'info': dict_info
-        })
-        return result
+        if not YSLOW.find_one({'url': url}):
+            t = time.time()
+            yslow_id = YSLOW.insert({
+                'url': url,
+                'info': dict_info,
+                'time': t
+            })
+            return yslow_id
+        else:
+            return False
     except errors.ConnectionFailure:
         return False
 
 
 def remove_yslow_by_id(id):
     try:
-        result = yslowcolletion.remove({'_id': ObjectId(id)})
+        YSLOW.remove({'_id': ObjectId(id)})
         return True
     except errors.ConnectionFailure:
         return False
@@ -71,26 +82,31 @@ def remove_yslow_by_id(id):
 
 def get_harviewer_by_id(id):
     try:
-        result = harviewercollection.find_one({'_id': ObjectId(id)})
-        return result
+        har_info = HAR.find_one({'_id': ObjectId(id)})
+        return har_info
     except errors.OperationFailure, errors.ConnectionFailure:
         return False
 
 
 def insert_harviewer(url, directory):
     try:
-        result = harviewercollection.insert({
-            'url': url,
-            'directory': directory
-        })
-        return result
+        if not HAR.find_one({'url': url}):
+            t = time.time()
+            har_id = HAR.insert({
+                'url': url,
+                'directory': directory,
+                'time': t
+            })
+            return har_id
+        else:
+            return False
     except errors.ConnectionFailure:
         return False
 
 
 def remove_harviewer_by_id(id):
     try:
-        result = harviewercollection.remove({'_id': ObjectId(id)})
+        HAR.remove({'_id': ObjectId(id)})
         return True
     except errors.ConnectionFailure:
         return False
