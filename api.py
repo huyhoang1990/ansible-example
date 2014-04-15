@@ -10,12 +10,11 @@ pip install xmltodict
 import settings
 import requests
 from commands import getstatusoutput
-from time import strftime, sleep
+from time import strftime
 import xmltodict
 import json
 import math
-from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
+import database
 
 
 def get_time():
@@ -64,33 +63,13 @@ def convert_size(size):
         return '0B'
 
 
-def generate_har(url):
-    profile = webdriver.FirefoxProfile()
-    try:
-        profile.add_extension(extension='resources/firebug-1.12.7.xpi')
-        profile.add_extension(extension='resources/netExport-0.8.xpi')
-
-        profile.set_preference("app.update.enabled", "false")
-        domain = "extensions.firebug."
-
-        #  Set default Firebug preferences
-        profile.set_preference(domain + "currentVersion", "2.0")
-        profile.set_preference(domain + "allPagesActivation", "on")
-        profile.set_preference(domain + "defaultPanelName", "net")
-        profile.set_preference(domain + "net.enableSites", "true")
-
-        #  Set default NetExport preferences
-        profile.set_preference(domain + "netexport.alwaysEnableAutoExport", "true")
-        profile.set_preference(domain + "netexport.showPreview", "true")
-        profile.set_preference(domain + "netexport.defaultLogDir", "/var/www/har/file")
-
-        driver = webdriver.Firefox(profile)
-        try:
-            sleep(6)
-            driver.get(url)
-            sleep(10)
-            driver.close()
-        except WebDriverException:
+def har_viewer(url):
+    if url:
+        command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, settings.HARSTORE)
+        status, output = getstatusoutput(command)
+        if status == 0:
+            return settings.HARSTORE
+        else:
             return False
-    except IOError:
+    else:
         return False
