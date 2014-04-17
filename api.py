@@ -66,7 +66,7 @@ def convert_size(size):
         return '0B'
 
 
-def har_viewer(url):
+def generate_har_file(url):
     if url:
         url = url.strip()
         t = str(datetime.now()).split('.', 1)[0].replace(' ', '+')
