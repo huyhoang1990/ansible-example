@@ -3,6 +3,14 @@ __author__ = 'thanhdl'
 
 from flask import Flask, jsonify, request, render_template, url_for, redirect
 import api
+from redis import Redis
+from rq import Queue
+import time
+
+redis_conn = Redis()
+pagespeed_queue = Queue(connection=redis_conn, default_timeout=3600)
+yslow_queue = Queue(connection=redis_conn, default_timeout=3600)
+har_queue = Queue(connection=redis_conn, default_timeout=3600)
 
 app = Flask(__name__)
 
@@ -20,8 +28,11 @@ def compare_info():
     if request.method == 'POST':
         if request.form.get('compare-url'):
             url = request.form.get('compare-url')
-            r_pagespeed = api.pagespeed(url)
-            r_yslow = api.yslow(url)
+
+            r_pagespeed = pagespeed_queue.enqueue(api.pagespeed, url)
+            r_yslow = yslow_queue.enqueue(api.yslow, url)
+            time.sleep(5)
+
             bg = 'http://api.thumbalizr.com/?url=%s&width=172' % url
 
             dict_info = {
@@ -31,32 +42,32 @@ def compare_info():
             }
 
             dict_summary = {
-                'pagespeed_score': r_pagespeed['score'],
-                'yslow_score': r_yslow['o'],
-                'pageload_time': '%0.2f' % (float(r_yslow['lt'])/1000),
-                'page_size': api.convert_size(float(r_yslow['w'])),
-                'total_request': r_yslow['r']
+                'pagespeed_score': r_pagespeed.result['score'],
+                'yslow_score': r_yslow.result['o'],
+                'pageload_time': '%0.2f' % (float(r_yslow.result['lt'])/1000),
+                'page_size': api.convert_size(float(r_yslow.result['w'])),
+                'total_request': r_yslow.result['r']
             }
 
             title_yslow = []
-            for key in r_yslow['g']:
+            for key in r_yslow.result['g']:
                 title_yslow.append(key)
 
             dict_yslow = []
             for i in title_yslow:
-                if 'score' in r_yslow['g'][i]:
-                    dict_yslow.append(r_yslow['g'][i]['score'])
+                if 'score' in r_yslow.result['g'][i]:
+                    dict_yslow.append(r_yslow.result['g'][i]['score'])
                 else:
                     dict_yslow.append('n/a')
 
             title_pagespeed = []
-            for key in r_pagespeed['formattedResults']['ruleResults']:
+            for key in r_pagespeed.result['formattedResults']['ruleResults']:
                 title_pagespeed.append(key)
 
             dict_pagespeed = []
             for i in title_pagespeed:
-                if 'ruleImpact' in r_pagespeed['formattedResults']['ruleResults'][i]:
-                    data = (1 - r_pagespeed['formattedResults']['ruleResults'][i]['ruleImpact'])*100
+                if 'ruleImpact' in r_pagespeed.result['formattedResults']['ruleResults'][i]:
+                    data = (1 - r_pagespeed.result['formattedResults']['ruleResults'][i]['ruleImpact'])*100
                     if data < 0:
                         dict_pagespeed.append('n/a')
                     else:
