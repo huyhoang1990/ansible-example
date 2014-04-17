@@ -74,7 +74,7 @@ def har_viewer(url):
         command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, directory)
         status, output = getstatusoutput(command)
         if status == 0:
-            database.insert_harviewer(url, directory)
+            database.insert_har(url, directory)
             return directory
         else:
             return False

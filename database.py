@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 import time
 
 DATABASE_HOST = '127.0.0.1'
-DATABASE_NAME = 'test'
+DATABASE_NAME = 'analytic'
 DATABASE_PORT = 27017
 
 CONNECTION = Connection(DATABASE_HOST, DATABASE_PORT)
@@ -80,7 +80,7 @@ def remove_yslow_by_id(id):
         return False
 
 
-def get_harviewer_by_id(id):
+def get_har_by_id(id):
     try:
         har_info = HAR.find_one({'_id': ObjectId(id)})
         return har_info
@@ -88,7 +88,7 @@ def get_harviewer_by_id(id):
         return False
 
 
-def insert_harviewer(url, directory):
+def insert_har(url, directory):
     try:
         if not HAR.find_one({'url': url}):
             t = time.time()
@@ -104,7 +104,7 @@ def insert_harviewer(url, directory):
         return False
 
 
-def remove_harviewer_by_id(id):
+def remove_har_by_id(id):
     try:
         HAR.remove({'_id': ObjectId(id)})
         return True
