@@ -1,12 +1,6 @@
 #! coding: utf-8
 __author__ = 'thanhdl'
 
-"""
-Nhớ cài phantomjs
-Nhớ cài xmltodict
-pip install xmltodict
-"""
-
 import settings
 import requests
 from commands import getstatusoutput
@@ -70,12 +64,13 @@ def generate_har_file(url):
     if url:
         url = url.strip()
         t = str(datetime.now()).split('.', 1)[0].replace(' ', '+')
-        directory = settings.HARSTORE + url.split('/', 3)[2] + '+' + t + '.com.har'
+        filename = url.split('/', 3)[2] + '+' + t + '.com.har'
+        directory = settings.HARSTORE + filename
         command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, directory)
         status, output = getstatusoutput(command)
         if status == 0:
             database.insert_har(url, directory)
-            return directory
+            return 'file/' + filename
         else:
             return False
     else:
