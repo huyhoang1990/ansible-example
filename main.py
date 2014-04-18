@@ -6,6 +6,7 @@ import api
 from redis import Redis
 from rq import Queue
 import time
+import settings
 
 redis_conn = Redis()
 pagespeed_queue = Queue(connection=redis_conn, default_timeout=3600)
@@ -31,7 +32,8 @@ def compare_info():
 
             r_pagespeed = pagespeed_queue.enqueue(api.pagespeed, url)
             r_yslow = yslow_queue.enqueue(api.yslow, url)
-            time.sleep(5)
+            r_har = har_queue.enqueue(api.generate_har_file, url)
+            time.sleep(8)
 
             bg = 'http://api.thumbalizr.com/?url=%s&width=172' % url
 
@@ -75,15 +77,19 @@ def compare_info():
                 else:
                     dict_pagespeed.append('n/a')
 
+            directory_har_file = settings.HAR_SERVER + r_har.result
+
             info = render_template('compare_info.html', **dict_info)
             summary = render_template('compare_summary.html', **dict_summary)
             result_yslow = render_template('yslow_results.html', dict_yslow=dict_yslow)
             result_pagespeed = render_template('pagespeed_results.html', dict_pagespeed=dict_pagespeed)
+            result_har = render_template('har_results.html', directory_har_file=directory_har_file)
             result = {
                 'info': info,
                 'summary': summary,
                 'result_yslow': result_yslow,
-                'result_pagespeed': result_pagespeed
+                'result_pagespeed': result_pagespeed,
+                'result_har': result_har
             }
             return jsonify(result)
         else:
