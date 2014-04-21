@@ -1,0 +1,54 @@
+---
+
+
+- name: Import the MongoDB public GPG Key
+  apt_key: id=0x7F0CEB10 state=present
+  sudo: True
+
+
+- name: Add mongodb repo
+  apt_repository: >
+    repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
+    state=present
+  sudo: True
+
+
+- name: Install mongodb
+  apt: pkg=mongodb-10gen state=present force=yes
+  sudo: True
+
+
+- name: Create database folder
+  file: >
+    path=/data/mongodb
+    state=directory
+    owner=mongodb
+    group=mongodb
+    recurse=yes
+  sudo: True
+
+
+- name: Disables write-ahead journaling
+  lineinfile: dest=/etc/mongodb.conf
+              regexp="nojournal = true"
+              line="nojournal = true"
+  when: not inventory_file.endswith('production')
+  notify: restart mongodb
+  sudo: True
+  tags:
+    - update_mongodb_config
+
+
+- name: Update mongodb config file
+  lineinfile: dest=/etc/mongodb.conf
+              regexp="^dbpath="
+              line="dbpath=/data/mongodb"
+  notify: restart mongodb
+  sudo: True
+  tags:
+    - update_mongodb_config
+
+
+- name: Make sure that the default mongodb server is stopped & disabled
+  service: name=mongodb state=stopped enabled=no
+  sudo: True

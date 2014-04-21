@@ -1,0 +1,7 @@
+---
+
+
+- name: restart supervisor
+  shell: supervisorctl reload
+  sudo: True
+

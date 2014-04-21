@@ -1,0 +1,77 @@
+---
+
+
+- name: Upload code
+  local_action: command rsync -vaz -e ssh
+                              --rsync-path='sudo rsync'
+                              --exclude='.*'
+                              --exclude='*.pyc'
+                              ../analytics
+                              {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
+  tags:
+    - update_code
+
+
+- name: change ownership of remote source code folder
+  file: path={{ project.root }}/analytics state=directory
+        owner={{ server.user}} recurse=yes
+  sudo: True
+  tags:
+    - update_code
+
+
+- name: Install virtualenv, pip, python-dev
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python-virtualenv
+    - python-pip
+    - python-dev
+  sudo: True
+
+
+- name: Setting up the virtual environment
+  shell: if [ ! -d {{ project.root }}/analytics/bin ]; then virtualenv {{ project.root }}/analytics/; fi
+
+
+- name: Install required packages
+  pip: requirements={{ project.root }}/analytics/requirements.txt virtualenv={{ project.root }}/analytics
+  tags:
+    - update_code
+
+
+- name: Upload phantom source code
+  copy: src=phantomjs-x.y.z-linux-x86_64.tar.bz2
+        dest=/usr/local/share/phantomjs-x.y.z-linux-x86_64.tar.bz2
+  register: phantom
+  sudo: True
+  tags:
+    - phantom
+
+
+- name: Extract phantom source code
+  command: chdir=/usr/local/share/
+           tar zxvf phantomjs-x.y.z-linux-x86_64.tar.bz2
+           ln -s /usr/local/share/phantomjs-x.y.z-linux-x86_64/ /usr/local/share/phantomjs
+           ln -s /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin/phantomjs
+  when: phantom.changed
+  sudo: True
+  tags:
+    - phantom
+
+
+- name: Update redis request filter config
+  template: src=redis.conf dest=/etc/redis_analytics.conf
+  sudo: True
+
+
+- name: Update nginx anlytics config
+  template: src=nginx.conf dest=/etc/nginx/analytics.conf
+  sudo: True
+
+- name: Update supervisord config file
+  template: src=supervisord.conf dest=/etc/supervisor/conf.d/analytics.conf
+  notify:
+    - restart supervisor
+  sudo: True
+  tags:
+    - update_supervisord_config_file

@@ -1,0 +1,32 @@
+---
+
+
+- name: Install supervisor
+  apt: pkg=supervisor state=present
+  sudo: True
+
+
+- apt: pkg=python-pip state=present
+  sudo: True
+
+
+- name: Install supervisor wildcards
+  pip: name=supervisor-wildcards
+  sudo: True
+
+
+- name: Update supervisord config file
+  copy: src=supervisord.conf dest=/etc/supervisor/supervisord.conf
+  notify:
+    - restart supervisor
+  sudo: True
+
+
+- file: path=/var/log/supervisor/ state=directory
+        owner={{ ansible_ssh_user}} recurse=yes
+  sudo: True
+
+
+- name: Start supervisor
+  service: name=supervisor state=started enabled=yes
+  sudo: True

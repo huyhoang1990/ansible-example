@@ -1,0 +1,8 @@
+---
+
+project:
+  root: /srv
+
+
+server:
+  user: clouduser

@@ -1,0 +1,11 @@
+---
+
+
+- hosts: analytics
+  gather_facts: no
+  roles:
+      - analytics
+#      - redis
+#      - supervisor
+#      - mongodb
+#      - nginx
