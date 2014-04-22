@@ -1,0 +1,98 @@
+---
+
+
+- name: Upload code
+  synchronize: src=../harviewer dest={{ project.root }}
+  tags:
+    - update_code
+  sudo: True
+
+
+- name: Install php-fastcgi required packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - php5
+    - php5-mysql
+    - php5-cli
+    - php5-cgi
+    - spawn-fcgi
+    - psmisc
+    - php5-gd
+    - php5-fpm
+    - php5-curl
+    - php5-memcache
+    - php5-mcrypt
+  sudo: True
+
+
+- name: Download ioncube loaders
+  get_url: >
+    url=http://downloads2.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
+    dest=/tmp/ioncube_loaders_lin_x86-64.tar.gz
+  register: ioncube
+
+
+- name: Extract ioncube source code
+  shell: >
+    chdir=/tmp
+    tar zxvf ioncube_loaders_lin_x86-64.tar.gz
+  when: ioncube.changed
+
+
+- name: Copy ioncube_loader_lin_5.5.so
+  shell: cp -f /tmp/ioncube/ioncube_loader_lin_5.4.so /usr/lib/php5/200*/
+  when: ioncube.changed
+  sudo: True
+
+
+- name: Update php.ini config file
+  copy: src=php.ini dest=/etc/php5/fpm/php.ini
+  sudo: True
+
+
+- name: Update php5-fpm config file
+  copy: src=php-fpm.conf dest=/etc/php5/fpm/php-fpm.conf
+  sudo: True
+
+
+- name: Disable default php5-fpm
+  service: name=php5-fpm state=stopped enabled=no
+  sudo: True
+
+
+- file: path=/var/log/php5-fpm.log state=file owner=www-data group=www-data
+  sudo: True
+
+
+- name: Update nginx config file
+  copy: src=nginx.conf dest=/etc/nginx/harviewer.conf
+  notify:
+     - restart nginx
+  tags:
+    - nginx
+  sudo: True
+
+
+- name: Update php fpm config file
+  copy: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf
+  notify:
+    - restart php-fpm
+  tags:
+    - update_php5_fpm_config
+  sudo: True
+
+
+- name: Update landing page supervisord config file
+  copy: src=supervisord.conf dest=/etc/supervisor/conf.d/harviewer.conf
+  notify:
+    - restart supervisor
+  tags:
+    - update_supervisord_config
+  sudo: True
+
+
+- name: Start supervisord
+  service: name=supervisor state=started enabled=yes
+  tags:
+    - update_supervisord_config
+  sudo: True
