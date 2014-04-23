@@ -4,9 +4,10 @@
 - hosts: analytics
   gather_facts: no
   roles:
-#      - redis
-#      - supervisor
-#      - mongodb
+      - common
+      - redis
+      - supervisor
+      - mongodb
       - nginx
-#      - harviewer
-#      - analytics
+      - harviewer
+      - analytics

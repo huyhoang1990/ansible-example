@@ -1,0 +1,24 @@
+---
+
+
+- name: restart supervisor
+  shell: supervisorctl reload
+  sudo: True
+
+
+- name: restart php-fpm
+  command: supervisorctl restart php-fpm
+  register: command_result
+  failed_when: "'started' not in command_result.stdout and
+                'SHUTDOWN_STATE' not in command_result.stdout and
+                'ERROR (no such process)' not in command_result.stdout"
+  sudo: True
+
+
+- name: restart nginx
+  command: supervisorctl restart nginx_harviewer
+  register: command_result
+  failed_when: "'started' not in command_result.stdout and
+                'SHUTDOWN_STATE' not in command_result.stdout and
+                'ERROR (no such process)' not in command_result.stdout"
+  sudo: True

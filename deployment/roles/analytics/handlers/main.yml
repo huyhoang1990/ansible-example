@@ -5,3 +5,11 @@
   shell: supervisorctl reload
   sudo: True
 
+
+- name: restart redis master
+  command: supervisorctl restart redis_master
+  register: command_result
+  failed_when: "'started' not in command_result.stdout and
+                'SHUTDOWN_STATE' not in command_result.stdout and
+                'ERROR (no such process)' not in command_result.stdout"
+  sudo: True
