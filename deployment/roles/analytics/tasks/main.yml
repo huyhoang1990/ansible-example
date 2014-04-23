@@ -9,7 +9,7 @@
                               ../analytics
                               {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
   tags:
-    - update_code
+    - update_code_analytics
 
 
 - name: change ownership of remote source code folder
@@ -17,7 +17,7 @@
         owner={{ server.user}} recurse=yes
   sudo: True
   tags:
-    - update_code
+    - update_code_analytics
 
 
 - name: Install virtualenv, pip, python-dev
@@ -36,12 +36,12 @@
 - name: Install required packages
   pip: requirements={{ project.root }}/analytics/requirements.txt virtualenv={{ project.root }}/analytics
   tags:
-    - update_code
+    - update_code_analytics
 
 
 - name: Upload phantom source code
-  copy: src=phantomjs-x.y.z-linux-x86_64.tar.bz2
-        dest=/usr/local/share/phantomjs-x.y.z-linux-x86_64.tar.bz2
+  copy: src=phantomjs-1.9.7-linux-x86_64.tar.bz2
+        dest=/usr/local/share/phantomjs-1.9.7-linux-x86_64.tar.bz2
   register: phantom
   sudo: True
   tags:
@@ -50,9 +50,16 @@
 
 - name: Extract phantom source code
   command: chdir=/usr/local/share/
-           tar jxvf phantomjs-x.y.z-linux-x86_64.tar.bz2
-           ln -s /usr/local/share/phantomjs-x.y.z-linux-x86_64/ /usr/local/share/phantomjs
-           ln -s /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin/phantomjs
+           tar jxvf phantomjs-1.9.7-linux-x86_64.tar.bz2
+  when: phantom.changed
+  sudo: True
+  tags:
+    - phantom
+
+
+- name: Install phantom
+  shell: ln -s /usr/local/share/phantomjs-1.9.7-linux-x86_64/ /usr/local/share/phantomjs
+         && ln -s /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin/phantomjs
   when: phantom.changed
   sudo: True
   tags:

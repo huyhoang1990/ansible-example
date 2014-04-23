@@ -1,5 +1,5 @@
 #! coding: utf-8
-__author__ = 'thanhdl'
+
 
 from flask import Flask, jsonify, request, render_template, url_for, redirect
 import api

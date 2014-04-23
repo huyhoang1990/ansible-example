@@ -1,4 +1,4 @@
-__author__ = 'thanhdl'
+
 
 from pymongo import Connection, errors
 from bson.objectid import ObjectId

@@ -1,7 +1,26 @@
-__author__ = 'thanhdl'
 
-API_URL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?url='
+
+# API_URL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?url='
+# YSLOW_JS = 'static/js/yslow.js'
+# NETSNIFF = 'static/js/netsniff.js'
+# HARSTORE = '/var/www/har/file/'
+# HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='
+
+
+REDIS_SERVER = '127.0.0.1:6379:0'
+
+REDIS_ANALYTICS_QUEUE = '127.0.0.1:6379:1'
+
+SECRET_KEY = 'bf4b484c-ca9c-11e3-993b-1a514932ac01'
+
+PAGESPEED_URL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?url='
+
+MONGOD_SERVERS = "127.0.0.1:27017"
+
+DATABASE_NAME = 'webpage_analytics'
+
 YSLOW_JS = 'static/js/yslow.js'
+
+HARSTORE = '/var/www/harviewer/files/'
+
 NETSNIFF = 'static/js/netsniff.js'
-HARSTORE = '/var/www/har/file/'
-HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='

@@ -1,4 +1,4 @@
-__author__ = 'thanhdl'
+
 
 import os
 import redis

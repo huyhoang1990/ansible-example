@@ -73,6 +73,14 @@
   sudo: True
 
 
+- name: Change permission for harviewer store
+  shell: mkdir {{ project.root }}/harviewer/files
+         && chmod 777 {{ project.root }}/harviewer/files
+  sudo: True
+  tags:
+    - change permission
+
+
 - name: Update php fpm config file
   copy: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf
   notify:
