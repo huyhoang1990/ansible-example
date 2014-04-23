@@ -33,7 +33,7 @@
 
 
 - name: Make sure nginx directories exist
-  file: path={{ item }} state=directory owner={{ ansible_ssh_user }}
+  file: path={{ item }} state=directory owner={{ server.user }}
   with_items:
     - /etc/nginx
     - /var/log/nginx/
