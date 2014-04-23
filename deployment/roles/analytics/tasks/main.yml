@@ -50,7 +50,7 @@
 
 - name: Extract phantom source code
   command: chdir=/usr/local/share/
-           tar zxvf phantomjs-x.y.z-linux-x86_64.tar.bz2
+           tar jxvf phantomjs-x.y.z-linux-x86_64.tar.bz2
            ln -s /usr/local/share/phantomjs-x.y.z-linux-x86_64/ /usr/local/share/phantomjs
            ln -s /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin/phantomjs
   when: phantom.changed
@@ -67,6 +67,17 @@
 - name: Update nginx anlytics config
   template: src=nginx.conf dest=/etc/nginx/analytics.conf
   sudo: True
+
+
+- name: Update redis master config
+  template: src=redis.conf dest=/etc/redis_master.conf
+  tags:
+    - redis
+    - update_config
+  notify:
+    - restart redis master
+  sudo: True
+
 
 - name: Update supervisord config file
   template: src=supervisord.conf dest=/etc/supervisor/conf.d/analytics.conf

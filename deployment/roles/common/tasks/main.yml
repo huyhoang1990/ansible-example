@@ -1,0 +1,18 @@
+---
+
+
+# Only run "update_cache=yes" if the last one is more than more than 3 months ago
+- name: Update repositories cache
+  apt: update_cache=yes cache_valid_time=7776000
+  ignore_errors: True
+  sudo: True
+
+
+- name: Installing necessary system tools
+  apt: pkg={{ item }} state=present
+  with_items:
+    - vim
+    - atop
+    - ipython
+    - build-essential
+  sudo: True

@@ -1,6 +1,21 @@
 ---
 
 
+- name: Install dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - build-essential
+    - zlib1g-dev
+    - libpcre3
+    - libpcre3-dev
+    - libreadline-dev
+    - libncurses5-dev
+    - libssl-dev
+    - perl
+    - make
+  sudo: True
+
+
 - name: Upload source nginx
   copy: src=nginx-1.2.8.tar.gz
         dest=/home/{{ server.user }}/nginx-1.2.8.tar.gz
@@ -17,6 +32,23 @@
     - nginx
 
 
+- name: Make sure nginx directories exist
+  file: path={{ item }} state=directory owner={{ server.user }}
+  with_items:
+    - /etc/nginx
+    - /var/log/nginx/
+  sudo: True
+  tags:
+    - nginx
+
+
+- name: Update mime.types
+  copy: src=mime.types dest=/etc/nginx/mime.types
+  sudo: True
+  tags:
+    - nginx
+
+
 - name: Install nginx
   shell: chdir=/home/{{ server.user }}/nginx-1.2.8/
            ./configure
@@ -27,4 +59,3 @@
   sudo: True
   tags:
     - nginx
-
