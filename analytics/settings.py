@@ -19,8 +19,8 @@ MONGOD_SERVERS = "127.0.0.1:27017"
 
 DATABASE_NAME = 'webpage_analytics'
 
-YSLOW_JS = 'static/js/yslow.js'
+YSLOW_JS = '/static/js/yslow.js'
 
-HARSTORE = '/var/www/harviewer/files/'
+HARSTORE = '/srv/harviewer/files/'
 
-NETSNIFF = 'static/js/netsniff.js'
+NETSNIFF = '/static/js/netsniff.js'

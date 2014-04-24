@@ -83,16 +83,17 @@ def get_harfile_info(url):
         command = 'phantomjs %s %s > %s' % (settings.NETSNIFF, url, dir)
         status, output = getstatusoutput(command)
         if status == 0:
+            source_file = 'file/%s' % filename
             webpage_info = ANALYTICS.find_one({'url': url})
             if webpage_info:
                 ANALYTICS.update({'url': url},
-                                 {'$set': {'harfile': dir}})
+                                 {'$set': {'harfile': source_file}})
 
             else:
                 ANALYTICS.insert({'url': url,
-                                  'harfile': dir})
+                                  'harfile': source_file})
 
-            REDIS_CONN.set('%s:harfile', dir)
+            REDIS_CONN.set('%s:harfile', source_file)
 
             return True
 
