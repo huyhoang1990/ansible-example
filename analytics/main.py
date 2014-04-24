@@ -34,6 +34,10 @@ def compare_info():
         webpage_info1 = api.get_webpage_info(url1)
         webpage_info2 = api.get_webpage_info(url2)
         overview_infos = []
+
+        pagespeed_details = yslow_details = {}
+
+
         if webpage_info1 and webpage_info2:
             for webpage_info in [webpage_info1,webpage_info2]:
                 overview_info = {
@@ -45,7 +49,31 @@ def compare_info():
                 }
                 overview_infos.append(overview_info)
 
-            return render_template('base.html', overview_infos=overview_infos)
+
+
+
+
+            # pagespeed_infos = webpage_info.get('pagespeed').get('formattedResults').get('ruleResults')
+            # for key in pagespeed_keys:
+            #     pagespeed_details[key] = [
+            #
+            #     ]
+            #     buf[i] = pagespeed_detail.get(i).get('ruleImpact')
+            pagespeed_details = {'PrioritizeVisibleContent': [1, 2],
+                                 'MinifyHTML': [1, 2],
+                                 'AvoidLandingPageRedirects': [1, 2],
+                                 'EnableGzipCompression': [1, 2],
+                                 'MinifyCss': [1, 2]}
+
+            yslow_details = {'asdf': [1, 2],
+                                 'asdf1': [1, 2],
+                                 'asdf2': [1, 2],
+                                 'asdf3': [1, 2],
+                                 'asdf4': [1, 2]}
+
+            return render_template('base.html', overview_infos=overview_infos,
+                                   pagespeed_details=pagespeed_details,
+                                   yslow_details=yslow_details)
 
         return redirect('/compare?url1=%s&url2=%s' % (url1, url2))
 

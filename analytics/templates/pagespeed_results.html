@@ -1,7 +1,0 @@
-<script>
-    $(document).ready(function() {
-        {% for i in dict_pagespeed %}
-            $('#table_pagespeed').find('tr').eq('{{ loop.index }}' - 1).append("<td class='rules-grade'><div class='compare-grade'>{{ i }}</div></td>");
-        {% endfor %}
-    });
-</script>
