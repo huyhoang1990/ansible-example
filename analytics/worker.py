@@ -1,16 +1,15 @@
+#! /usr/bin/env python
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 
-import os
-import redis
-from rq import Worker, Queue, Connection
+import api
+from rq import Queue, Worker, Connection
 
-listen = ['high', 'default', 'low']
 
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-
-conn = redis.from_url(redis_url)
-
-if __name__ == '__main__':
-    with Connection(conn):
-        worker = Worker(map(Queue, listen))
-        worker.work()
+with Connection(api.TASK_QUEUE):
+    qs = map(Queue, sys.argv[1:]) or [Queue('default')]
+    w = Worker(qs, default_result_ttl=0)
+    w.work()

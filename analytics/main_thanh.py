@@ -1,32 +1,25 @@
 #! coding: utf-8
 
 
-from rq import Queue
+from flask import Flask, jsonify, request, render_template, url_for, redirect
+import api_thanh
 from redis import Redis
-from datetime import timedelta
-from flask import (Flask, jsonify, request,
-                   render_template, url_for, redirect)
-
-
-import api
+from rq import Queue
 import time
 import settings
 
+redis_conn = Redis()
+pagespeed_queue = Queue(connection=redis_conn, default_timeout=3600)
+yslow_queue = Queue(connection=redis_conn, default_timeout=3600)
+har_queue = Queue(connection=redis_conn, default_timeout=3600)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = settings.SECRET_KEY
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=60)
-
-# redis_conn = Redis()
-# pagespeed_queue = Queue(connection=redis_conn, default_timeout=3600)
-# yslow_queue = Queue(connection=redis_conn, default_timeout=3600)
-# har_queue = Queue(connection=redis_conn, default_timeout=3600)
 
 
 @app.route('/')
 def index():
     data = {
-        'time': api.get_time(),
+        'time': api_thanh.get_time(),
     }
     return render_template('base.html', **data)
 
@@ -37,9 +30,9 @@ def compare_info():
         if request.form.get('compare-url'):
             url = request.form.get('compare-url')
 
-            r_pagespeed = pagespeed_queue.enqueue(api.pagespeed, url)
-            r_yslow = yslow_queue.enqueue(api.yslow, url)
-            r_har = har_queue.enqueue(api.generate_har_file, url)
+            r_pagespeed = pagespeed_queue.enqueue(api_thanh.pagespeed, url)
+            r_yslow = yslow_queue.enqueue(api_thanh.yslow, url)
+            r_har = har_queue.enqueue(api_thanh.generate_har_file, url)
             time.sleep(8)
 
             bg = 'http://api.thumbalizr.com/?url=%s&width=172' % url
@@ -47,14 +40,14 @@ def compare_info():
             dict_info = {
                 'bg': bg,
                 'link': url,
-                'time': api.get_time()
+                'time': api_thanh.get_time()
             }
 
             dict_summary = {
                 'pagespeed_score': r_pagespeed.result['score'],
                 'yslow_score': r_yslow.result['o'],
                 'pageload_time': '%0.2f' % (float(r_yslow.result['lt'])/1000),
-                'page_size': api.convert_size(float(r_yslow.result['w'])),
+                'page_size': api_thanh.convert_size(float(r_yslow.result['w'])),
                 'total_request': r_yslow.result['r']
             }
 
@@ -107,4 +100,3 @@ def compare_info():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

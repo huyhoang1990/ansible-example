@@ -1,9 +1,14 @@
-<div class="compare-summary compare-summary1 box">
-    <div class="compare-grades">
-        <span class="">({{ pagespeed_score }}%)</span><br>
-        <span class="">({{ yslow_score }}%)</span><br>
+
+{% for overview_info in overview_infos %}
+
+    <div class="compare-summary compare-summary1 box">
+        <div class="compare-grades">
+            <span class="">({{ overview_info.pagespeed_score }}%)</span><br>
+            <span class="">({{ overview_info.yslow_score }}%)</span><br>
+        </div>
+        <span class="">{{ overview_info.pageload_time }}s</span><br>
+        <span class="">{{ overview_info.page_size }}</span><br>
+        <span class="">{{ overview_info.total_request }}</span>
     </div>
-    <span class="">{{ pageload_time }}s</span><br>
-    <span class="">{{ page_size }}</span><br>
-    <span class="">{{ total_request }}</span>
-</div>
+
+{% endfor %}
