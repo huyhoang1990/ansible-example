@@ -50,8 +50,9 @@ def compare_info():
                 overview_infos.append(overview_info)
 
 
+                pagespeed_detail = webpage_info.get('pagespeed').get('formattedResults').get('ruleResults')
 
-
+                pagespeed_details.append(pagespeed_info)
 
             # pagespeed_infos = webpage_info.get('pagespeed').get('formattedResults').get('ruleResults')
             # for key in pagespeed_keys:

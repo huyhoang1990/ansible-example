@@ -1,15 +1,9 @@
 ---
 
 
-- name: Import the MongoDB public GPG Key
-  apt_key: id=0x7F0CEB10 state=present
-  sudo: True
-
-
 - name: Add mongodb repo
   apt_repository: >
-    repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
-    state=present
+    repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' state=present
   sudo: True
 
 

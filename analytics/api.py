@@ -6,11 +6,11 @@ from redis import Redis
 from time import strftime
 from datetime import datetime
 from urlparse import urlparse
+from simplejson import dumps, loads
 from commands import getstatusoutput
 from pymongo import MongoClient as MongoDB
 
 import math
-import pickle
 import requests
 import settings
 import xmltodict
@@ -35,27 +35,61 @@ def get_time():
     return now
 
 
+def parse_pagespeed_info(pagespeed_info):
+    pagespeed_details = pagespeed_info.get('formattedResults') \
+                                      .get('ruleResults')
+
+    result = {}
+
+    for key in pagespeed_details:
+        result[key] = pagespeed_details.get(key) \
+                                       .get('ruleImpact')
+
+    return result
+
+
 def get_pagespeed_info(url):
     if url:
         pagespeed_url = '%s%s' % (settings.PAGESPEED_URL, url)
-        pagespeed_info = requests.get(pagespeed_url).json()
 
+        headers = {'Accept-Encoding': 'identity, deflate, compress, gzip',
+                   'Accept': '*/*'}
+        pagespeed_info = requests.get(pagespeed_url, headers=headers).json()
         if pagespeed_info:
-            webpage_info = ANALYTICS.find_one({'url': url})
-            if webpage_info:
-                ANALYTICS.update({'url': url},
-                                 {'$set': {'pagespeed': pagespeed_info}})
+            pagespeed_info = parse_pagespeed_info(pagespeed_info)
+            if pagespeed_info:
+                webpage_info = ANALYTICS.find_one({'url': url})
+                if webpage_info:
+                    ANALYTICS.update({'url': url},
+                                     {'$set': {'pagespeed': pagespeed_info}})
 
-            else:
-                ANALYTICS.insert({'url': url,
-                                 'pagespeed': pagespeed_info})
+                else:
+                    ANALYTICS.insert({'url': url,
+                                     'pagespeed': pagespeed_info})
 
-            REDIS_CONN.set('%s:pagespeed' % url,
-                           pickle.dumps(pagespeed_info))
+                REDIS_CONN.set('%s:pagespeed' % url,
+                               dumps(pagespeed_info))
 
-            return True
+                return True
 
     return False
+
+
+def parse_yslow_info(yslow_info):
+    result = {}
+    result['pageload_time'] = '%0.2f' % float(yslow_info.get('lt')/1000)
+    result['page_size'] = convert_size(float(yslow_info.get('w')))
+    result['total_request'] = yslow_info.get('r')
+    result['yslow_score'] = yslow_info.get('o')
+
+    yslow_details = yslow_info.get('g')
+    for detail in yslow_details:
+        if yslow_details[detail].has_key('score'):
+            result[detail] = yslow_details[detail].get('score')
+        else:
+            result[detail] = 'n/a'
+
+    return result
 
 
 def get_yslow_info(url):
@@ -65,19 +99,21 @@ def get_yslow_info(url):
         if status == 0:
             yslow_info = xmltodict.parse(output).get('results')
             if yslow_info:
-                webpage_info = ANALYTICS.find_one({'url': url})
-                if webpage_info:
-                    ANALYTICS.update({'url': url},
-                                     {'$set': {'yslow': yslow_info}})
+                yslow_info = parse_yslow_info(yslow_info)
+                if yslow_info:
+                    webpage_info = ANALYTICS.find_one({'url': url})
+                    if webpage_info:
+                        ANALYTICS.update({'url': url},
+                                         {'$set': {'yslow': yslow_info}})
 
-                else:
-                    ANALYTICS.insert({'url': url,
-                                      'yslow': yslow_info})
+                    else:
+                        ANALYTICS.insert({'url': url,
+                                          'yslow': yslow_info})
 
-                REDIS_CONN.set('%s:yslow' % url,
-                               pickle.dumps(yslow_info))
+                    REDIS_CONN.set('%s:yslow' % url,
+                                   dumps(yslow_info))
 
-            return True
+                return True
 
     return False
 
@@ -115,8 +151,8 @@ def get_webpage_info(url):
     harfile_info = REDIS_CONN.get('%s:harfile' % url)
 
     if all([pagespeed_info, yslow_info, harfile_info]):
-        pagespeed_info = pickle.loads(pagespeed_info)
-        yslow_info = pickle.loads(yslow_info)
+        pagespeed_info = loads(pagespeed_info)
+        yslow_info = loads(yslow_info)
 
         return {'pagespeed': pagespeed_info,
                 'yslow': yslow_info,
@@ -150,3 +186,8 @@ def convert_size(size):
     else:
         return '0B'
 
+
+if __name__ == '__main__':
+    url = 'http://dantri.com.vn'
+    # get_pagespeed_info(url)
+    # get_yslow_info(url)

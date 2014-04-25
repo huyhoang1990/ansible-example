@@ -43,6 +43,9 @@ def compare_info():
                 'time': api_thanh.get_time()
             }
 
+
+
+
             dict_summary = {
                 'pagespeed_score': r_pagespeed.result['score'],
                 'yslow_score': r_yslow.result['o'],
