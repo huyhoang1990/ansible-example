@@ -1,8 +1,8 @@
 #! coding: utf-8
 
 
-from rq import Queue
-from redis import Redis
+# from rq import Queue
+# from redis import Redis
 from datetime import timedelta
 from flask import (Flask, jsonify, request,
                    render_template, url_for, redirect)
@@ -19,9 +19,10 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=60)
 
 @app.route('/')
 def home():
-    time_info = api.get_time()
+    # time_info = api.get_time()
+    # return render_template('base.html', time_info=time_info)
 
-    return render_template('base.html', time_info=time_info)
+    return render_template('home_pingdom.html')
 
 
 @app.route('/compare')
