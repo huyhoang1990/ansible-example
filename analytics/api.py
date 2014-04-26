@@ -187,7 +187,3 @@ def convert_size(size):
         return '0B'
 
 
-if __name__ == '__main__':
-    url = 'http://dantri.com.vn'
-    # get_pagespeed_info(url)
-    # get_yslow_info(url)
