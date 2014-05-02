@@ -1,31 +1,31 @@
 #! coding: utf-8
 
 
-from rq import Queue
-from redis import Redis
+# from rq import Queue
+# from redis import Redis
 from time import strftime
 from datetime import datetime
 from urlparse import urlparse
-from simplejson import dumps, loads
+# from simplejson import dumps, loads
 from commands import getstatusoutput
-from pymongo import MongoClient as MongoDB
+# from pymongo import MongoClient as MongoDB
 
 import math
-import requests
+# import requests
 import settings
-import xmltodict
+# import xmltodict
 
-DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
-ANALYTICS = DATABASE.analytics
-
-host, port ,db = settings.REDIS_SERVER.split(':')
-REDIS_CONN = Redis(host=host, port=int(port), db=int(db))
-
-host, port, db = settings.REDIS_ANALYTICS_QUEUE.split(':')
-TASK_QUEUE = Redis(host=host, port=int(port), db=int(db))
-CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
-                             connection=TASK_QUEUE,
-                             default_timeout=600)
+# DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
+# ANALYTICS = DATABASE.analytics
+#
+# host, port ,db = settings.REDIS_SERVER.split(':')
+# REDIS_CONN = Redis(host=host, port=int(port), db=int(db))
+#
+# host, port, db = settings.REDIS_ANALYTICS_QUEUE.split(':')
+# TASK_QUEUE = Redis(host=host, port=int(port), db=int(db))
+# CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
+#                              connection=TASK_QUEUE,
+#                              default_timeout=600)
 
 
 def get_time():

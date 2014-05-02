@@ -1,8 +1,8 @@
 #! coding: utf-8
 
 
-from rq import Queue
-from redis import Redis
+# from rq import Queue
+# from redis import Redis
 from datetime import timedelta
 from flask import (Flask, jsonify, request,
                    render_template, url_for, redirect)
