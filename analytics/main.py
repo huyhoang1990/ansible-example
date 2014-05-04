@@ -27,7 +27,7 @@ def home():
 def compare_directly():
     if request.method == 'POST':
         url = request.form.get('url')
-        created_time = time.time()
+        created_time = int(time.time())
 
     else:
         url = request.args.get('url')
@@ -45,7 +45,7 @@ def compare_directly():
                 'page_size': webpage_info.get('yslow').get('page_size'),
                 'total_request': webpage_info.get('yslow').get('total_request')
             }
-            return render_template('home.html', overview_info=overview_info)
+            return render_template('overview.html', overview_info=overview_info)
 
         time.sleep(1)
 

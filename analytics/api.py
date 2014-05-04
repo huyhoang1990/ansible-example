@@ -143,6 +143,8 @@ def get_harfile_info(url, created_time):
 
 
 def get_webpage_info(url, created_time):
+    created_time = int(created_time)
+
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 

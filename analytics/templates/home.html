@@ -1,18 +1,26 @@
 <html>
     <head>
-
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script src="/static/js/main.js" type="text/javascript"></script>
     </head>
 
     <body>
 
-        <form method="post" action="/compare_directly">
+        <form id="webpage-form" method="post" action="/compare_directly">
             <input required name="url" type="text">
             <button type="submit">Test</button>
         </form>
+        <div class="loading" style="display: none">
+            <img src="/static/img/loading.gif" style="width: 50px;">
+        </div>
 
-        {% if overview_info %}
-            {{ overview_info }}
-        {% endif %}
+
+        <div class="content">
+
+        </div>
+        <!--{% if overview_info %}-->
+            <!--{{ overview_info }}-->
+        <!--{% endif %}-->
 
     </body>
 </html>
