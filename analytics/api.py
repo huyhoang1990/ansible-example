@@ -3,7 +3,6 @@
 
 from rq import Queue
 from redis import Redis
-from time import strftime
 from datetime import datetime
 from urlparse import urlparse
 from simplejson import dumps, loads
@@ -18,9 +17,6 @@ import xmltodict
 DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
 ANALYTICS = DATABASE.analytics
 
-host, port ,db = settings.REDIS_SERVER.split(':')
-REDIS_CONN = Redis(host=host, port=int(port), db=int(db))
-
 host, port, db = settings.REDIS_ANALYTICS_QUEUE.split(':')
 TASK_QUEUE = Redis(host=host, port=int(port), db=int(db))
 CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
@@ -28,27 +24,26 @@ CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
                              default_timeout=600)
 
 
-def get_time():
-    now = '%s, %s %s, %s, %s' % (strftime("%a"), strftime("%b"),
-                                 strftime("%d"), strftime("%Y"),
-                                 strftime("%I:%M %p"))
-    return now
-
-
 def parse_pagespeed_info(pagespeed_info):
     pagespeed_details = pagespeed_info.get('formattedResults') \
                                       .get('ruleResults')
 
     result = {}
+    result['score'] = pagespeed_info.get('score')
 
     for key in pagespeed_details:
-        result[key] = pagespeed_details.get(key) \
-                                       .get('ruleImpact')
+        data = pagespeed_details.get(key).get('ruleImpact')
+        if data is not None:
+            data = (1 - data) * 100 if 1 > data else 'n/a'
+            result[key] = data
+
+        else:
+            result[key] = 'n/a'
 
     return result
 
 
-def get_pagespeed_info(url):
+def get_pagespeed_info(url, created_time):
     if url:
         pagespeed_url = '%s%s' % (settings.PAGESPEED_URL, url)
 
@@ -58,17 +53,17 @@ def get_pagespeed_info(url):
         if pagespeed_info:
             pagespeed_info = parse_pagespeed_info(pagespeed_info)
             if pagespeed_info:
-                webpage_info = ANALYTICS.find_one({'url': url})
+                webpage_info = ANALYTICS.find_one({'url': url,
+                                                   'created_time': created_time})
                 if webpage_info:
-                    ANALYTICS.update({'url': url},
+                    ANALYTICS.update({'url': url,
+                                      'created_time': created_time},
                                      {'$set': {'pagespeed': pagespeed_info}})
 
                 else:
                     ANALYTICS.insert({'url': url,
-                                     'pagespeed': pagespeed_info})
-
-                REDIS_CONN.set('%s:pagespeed' % url,
-                               dumps(pagespeed_info))
+                                      'created_time': created_time,
+                                      'pagespeed': pagespeed_info})
 
                 return True
 
@@ -77,7 +72,8 @@ def get_pagespeed_info(url):
 
 def parse_yslow_info(yslow_info):
     result = {}
-    result['pageload_time'] = '%0.2f' % float(yslow_info.get('lt')/1000)
+    # result['pageload_time'] = '%s s' % str(float(yslow_info.get('lt'))/100)
+    result['pageload_time'] = yslow_info.get('lt')
     result['page_size'] = convert_size(float(yslow_info.get('w')))
     result['total_request'] = yslow_info.get('r')
     result['yslow_score'] = yslow_info.get('o')
@@ -92,7 +88,7 @@ def parse_yslow_info(yslow_info):
     return result
 
 
-def get_yslow_info(url):
+def get_yslow_info(url, created_time):
     if url:
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         status, output = getstatusoutput(command)
@@ -101,24 +97,24 @@ def get_yslow_info(url):
             if yslow_info:
                 yslow_info = parse_yslow_info(yslow_info)
                 if yslow_info:
-                    webpage_info = ANALYTICS.find_one({'url': url})
+                    webpage_info = ANALYTICS.find_one({'url': url,
+                                                       'created_time': created_time})
                     if webpage_info:
-                        ANALYTICS.update({'url': url},
+                        ANALYTICS.update({'url': url,
+                                          'created_time': created_time},
                                          {'$set': {'yslow': yslow_info}})
 
                     else:
                         ANALYTICS.insert({'url': url,
+                                          'created_time': created_time,
                                           'yslow': yslow_info})
-
-                    REDIS_CONN.set('%s:yslow' % url,
-                                   dumps(yslow_info))
 
                 return True
 
     return False
 
 
-def get_harfile_info(url):
+def get_harfile_info(url, created_time):
     if url:
         time_now = datetime.now().strftime('%Y-%m-%d+%H:%M:%S')
         host = urlparse(url).netloc
@@ -129,48 +125,48 @@ def get_harfile_info(url):
         status, output = getstatusoutput(command)
         if status == 0:
             source_file = 'file/%s' % filename
-            webpage_info = ANALYTICS.find_one({'url': url})
+            webpage_info = ANALYTICS.find_one({'url': url,
+                                               'created_time': created_time})
             if webpage_info:
-                ANALYTICS.update({'url': url},
+                ANALYTICS.update({'url': url,
+                                  'created_time': created_time},
                                  {'$set': {'harfile': source_file}})
 
             else:
                 ANALYTICS.insert({'url': url,
+                                  'created_time': created_time,
                                   'harfile': source_file})
-
-            REDIS_CONN.set('%s:harfile' % url, source_file)
 
             return True
 
     return False
 
 
-def get_webpage_info(url):
-    pagespeed_info = REDIS_CONN.get('%s:pagespeed' % url)
-    yslow_info = REDIS_CONN.get('%s:yslow' % url)
-    harfile_info = REDIS_CONN.get('%s:harfile' % url)
+def get_webpage_info(url, created_time):
+    webpage_info = ANALYTICS.find_one({'url': url,
+                                       'created_time': created_time})
 
-    if all([pagespeed_info, yslow_info, harfile_info]):
-        pagespeed_info = loads(pagespeed_info)
-        yslow_info = loads(yslow_info)
 
-        return {'pagespeed': pagespeed_info,
-                'yslow': yslow_info,
-                'harfile': harfile_info}
+    if webpage_info:
+        if webpage_info.has_key('pagespeed') and \
+            webpage_info.has_key('yslow') and \
+            webpage_info.has_key('harfile'):
 
-    else:
-        webpage_info = ANALYTICS.find_one({'url': url})
-        if webpage_info:
             return {'pagespeed': webpage_info.get('pagespeed'),
                     'yslow': webpage_info.get('yslow'),
                     'harfile': webpage_info.get('harfile')}
 
-        else:
-            CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url)
-            CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url)
-            CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url)
+        return False
 
-            return False
+    else:
+        ANALYTICS.insert({'url': url,
+                          'created_time': created_time})
+
+        CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url, created_time)
+        CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url, created_time)
+        CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url, created_time)
+
+        return False
 
 
 def convert_size(size):

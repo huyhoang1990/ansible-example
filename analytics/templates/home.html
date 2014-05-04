@@ -1,0 +1,18 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+
+        <form method="post" action="/compare_directly">
+            <input required name="url" type="text">
+            <button type="submit">Test</button>
+        </form>
+
+        {% if overview_info %}
+            {{ overview_info }}
+        {% endif %}
+
+    </body>
+</html>

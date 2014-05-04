@@ -4,10 +4,11 @@
 from rq import Queue
 from redis import Redis
 from datetime import timedelta
-from flask import (Flask, jsonify, request,
+from flask import (Flask, jsonify, request, abort,
                    render_template, url_for, redirect)
 
 import api
+import time
 import settings
 
 
@@ -16,69 +17,42 @@ app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=60)
 
 
-
 @app.route('/')
 def home():
-    # time_info = api.get_time()
-    # return render_template('base.html', time_info=time_info)
 
-    return render_template('home_pingdom.html')
+    return render_template('home.html')
 
 
-@app.route('/compare')
-def compare_info():
-    url1 = request.args.get('url1')
-    url2 = request.args.get('url2')
-    if url1 and url2:
-        url1 = url1.strip()
-        url2 = url2.strip()
-        webpage_info1 = api.get_webpage_info(url1)
-        webpage_info2 = api.get_webpage_info(url2)
-        overview_infos = []
+@app.route('/compare_directly', methods=['GET', 'POST'])
+def compare_directly():
+    if request.method == 'POST':
+        url = request.form.get('url')
+        created_time = time.time()
 
-        pagespeed_details = yslow_details = {}
+    else:
+        url = request.args.get('url')
+        created_time = request.args.get('created_time')
 
+    if url:
+        url = url.strip()
+        webpage_info = api.get_webpage_info(url, created_time)
+        if webpage_info:
 
-        if webpage_info1 and webpage_info2:
-            for webpage_info in [webpage_info1,webpage_info2]:
-                overview_info = {
-                    'pagespeed_score': webpage_info.get('pagespeed').get('score'),
-                    'yslow_score': webpage_info.get('yslow').get('o'),
-                    'pageload_time': '%0.2f' % (float(webpage_info.get('yslow').get('lt'))/1000),
-                    'page_size': api.convert_size(float(webpage_info.get('yslow').get('w'))),
-                    'total_request': webpage_info.get('yslow').get('r')
-                }
-                overview_infos.append(overview_info)
+            overview_info = {
+                'pagespeed_score': webpage_info.get('pagespeed').get('score'),
+                'yslow_score': webpage_info.get('yslow').get('yslow_score'),
+                'pageload_time': webpage_info.get('yslow').get('pageload_time'),
+                'page_size': webpage_info.get('yslow').get('page_size'),
+                'total_request': webpage_info.get('yslow').get('total_request')
+            }
+            return render_template('home.html', overview_info=overview_info)
 
+        time.sleep(1)
 
-                pagespeed_detail = webpage_info.get('pagespeed').get('formattedResults').get('ruleResults')
+        return redirect('/compare_directly?url=%s&created_time=%s' % \
+                        (url, created_time))
 
-                pagespeed_details.append(pagespeed_info)
-
-            # pagespeed_infos = webpage_info.get('pagespeed').get('formattedResults').get('ruleResults')
-            # for key in pagespeed_keys:
-            #     pagespeed_details[key] = [
-            #
-            #     ]
-            #     buf[i] = pagespeed_detail.get(i).get('ruleImpact')
-            pagespeed_details = {'PrioritizeVisibleContent': [1, 2],
-                                 'MinifyHTML': [1, 2],
-                                 'AvoidLandingPageRedirects': [1, 2],
-                                 'EnableGzipCompression': [1, 2],
-                                 'MinifyCss': [1, 2]}
-
-            yslow_details = {'asdf': [1, 2],
-                                 'asdf1': [1, 2],
-                                 'asdf2': [1, 2],
-                                 'asdf3': [1, 2],
-                                 'asdf4': [1, 2]}
-
-            return render_template('base.html', overview_infos=overview_infos,
-                                   pagespeed_details=pagespeed_details,
-                                   yslow_details=yslow_details)
-
-        return redirect('/compare?url1=%s&url2=%s' % (url1, url2))
-
+    abort(400)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
