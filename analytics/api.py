@@ -72,8 +72,7 @@ def get_pagespeed_info(url, created_time):
 
 def parse_yslow_info(yslow_info):
     result = {}
-    # result['pageload_time'] = '%s s' % str(float(yslow_info.get('lt'))/100)
-    result['pageload_time'] = yslow_info.get('lt')
+    result['pageload_time'] = '%s s' % str(float(yslow_info.get('lt'))/1000)
     result['page_size'] = convert_size(float(yslow_info.get('w')))
     result['total_request'] = yslow_info.get('r')
     result['yslow_score'] = yslow_info.get('o')
@@ -144,7 +143,6 @@ def get_harfile_info(url, created_time):
 
 def get_webpage_info(url, created_time):
     created_time = int(created_time)
-
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 

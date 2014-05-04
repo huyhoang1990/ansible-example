@@ -22,6 +22,58 @@ def home():
 
     return render_template('home.html')
 
+@app.route('/powerup')
+def test():
+    return render_template('powerup.html')
+
+@app.route('/compare_powerup', methods=['GET', 'POST'])
+def compare_powerup():
+    if request.method == 'POST':
+        url1 = request.form.get('url1')
+        url2 = request.form.get('url2')
+        created_time = int(time.time())
+
+    else:
+        url1 = request.args.get('url1')
+        url2 = request.args.get('url2')
+        created_time = request.args.get('created_time')
+
+    if url1 and url2:
+        url1 = url1.strip()
+        url2 = url2.strip()
+
+        webpage_info1 = api.get_webpage_info(url1, created_time)
+        webpage_info2 = api.get_webpage_info(url2, created_time)
+
+        if webpage_info1 and webpage_info2:
+            overview_info1 = {
+                'pagespeed_score': webpage_info1.get('pagespeed').get('score'),
+                'yslow_score': webpage_info1.get('yslow').get('yslow_score'),
+                'pageload_time': webpage_info1.get('yslow').get('pageload_time'),
+                'page_size': webpage_info1.get('yslow').get('page_size'),
+                'total_request': webpage_info1.get('yslow').get('total_request')
+            }
+
+            overview_info2 = {
+                'pagespeed_score': webpage_info2.get('pagespeed').get('score'),
+                'yslow_score': webpage_info2.get('yslow').get('yslow_score'),
+                'pageload_time': webpage_info2.get('yslow').get('pageload_time'),
+                'page_size': webpage_info2.get('yslow').get('page_size'),
+                'total_request': webpage_info2.get('yslow').get('total_request')
+            }
+
+            return render_template('overview.html',
+                                   url1=url1, url2=url2,
+                                   overview_info1=overview_info1,
+                                   overview_info2=overview_info2)
+
+        time.sleep(1)
+
+        return redirect('/compare_powerup?url1=%s&url2=%s&created_time=%s' % \
+                        (url1, url2, created_time))
+
+    abort(400)
+
 
 @app.route('/compare_directly', methods=['GET', 'POST'])
 def compare_directly():

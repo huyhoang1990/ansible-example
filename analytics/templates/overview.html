@@ -1,5 +1,29 @@
 
 
 {% if overview_info %}
-    {{ overview_info }}
+    {% for data in overview_info %}
+        {{ data }} : {{ overview_info.get(data) }} <br>
+    {% endfor %}
 {% endif %}
+
+{% if overview_info1 and overview_info2 %}
+    {{ url1 }}
+    <br>
+    {% for data in overview_info1 %}
+        {{ data }} : {{ overview_info1.get(data) }} <br>
+    {% endfor %}
+
+    <br><br>
+
+    {{ url2 }}
+    <br>
+    {% for data in overview_info2 %}
+        {{ data }} : {{ overview_info2.get(data) }} <br>
+    {% endfor %}
+
+
+{% endif %}
+
+
+
+

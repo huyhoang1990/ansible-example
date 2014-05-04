@@ -2,23 +2,25 @@
     <head>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
         <script src="/static/js/main.js" type="text/javascript"></script>
-         <style>
+
+        <style>
             input {width: 200px; height: 30px;}
         </style>
+
     </head>
 
     <body>
 
-        <form id="webpage-form" method="post" action="/compare_directly">
-            <label>Url: </label><input required name="url" type="text">
+        <form id="powerup-form" method="post" action="/compare_powerup">
+            <label>Url1: </label><input required name="url1" type="text"> <br><br>
+            <label>Url2: </label><input required name="url2" type="text">
             <button type="submit">Test</button>
         </form>
         <div class="loading" style="display: none">
             <img src="/static/img/loading.gif" style="width: 50px;">
         </div>
 
-
-        <div class="content">
+        <div class="content-powerup">
 
         </div>
 
