@@ -70,8 +70,8 @@
            ./configure --add-module=../nginx-push-stream-module
            && make
            && make install
-#  when: >
-#    nginx.changed
+  when: >
+    nginx.changed
   sudo: True
   tags:
     - nginx
