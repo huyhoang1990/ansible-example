@@ -90,6 +90,7 @@ def parse_yslow_info(yslow_info):
 def get_yslow_info(url, created_time):
     if url:
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
+        print command
         status, output = getstatusoutput(command)
         if status == 0:
             yslow_info = xmltodict.parse(output).get('results')

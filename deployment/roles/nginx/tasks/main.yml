@@ -32,6 +32,22 @@
     - nginx
 
 
+- name: Upload source nginx-push-stream-module
+  copy: src=nginx-push-stream-module.tar.gz
+        dest=/home/{{ server.user }}/nginx-push-stream-module.tar.gz
+  register: nginx
+  tags:
+    - nginx
+
+
+- name: Extract nginx-push-stream-module source code
+  command: chdir=/home/{{ server.user }}/
+           tar zxvf nginx-push-stream-module.tar.gz
+  when: nginx.changed
+  tags:
+    - nginx
+
+
 - name: Make sure nginx directories exist
   file: path={{ item }} state=directory owner={{ server.user }}
   with_items:
@@ -51,7 +67,7 @@
 
 - name: Install nginx
   shell: chdir=/home/{{ server.user }}/nginx-1.2.8/
-           ./configure
+           ./configure --add-module=../nginx-push-stream-module
            && make
            && make install
   when: >
