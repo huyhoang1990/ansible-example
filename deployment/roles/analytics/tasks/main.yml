@@ -75,7 +75,8 @@
 - name: Update nginx anlytics config
   template: src=nginx.conf dest=/etc/nginx/analytics.conf
   sudo: True
-
+  tags:
+    - analytics_nginx
 
 - name: Update redis master config
   template: src=redis.conf dest=/etc/redis_master.conf

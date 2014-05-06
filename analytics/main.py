@@ -106,5 +106,11 @@ def compare_directly():
 
     abort(400)
 
+
+@app.route('/nginxpubsub', methods=['GET', 'POST'])
+def nginxpubsub():
+    return render_template('nginxpubsub.html')
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
