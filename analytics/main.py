@@ -115,7 +115,7 @@ def nginxpubsub():
 
 @app.route('/homemaxcdn', methods=['GET', 'POST'])
 def homecdn():
-    return render_template('home_maxcdn.html')
+    return render_template('home_maxcdn_single.html')
 
 
 if __name__ == '__main__':
