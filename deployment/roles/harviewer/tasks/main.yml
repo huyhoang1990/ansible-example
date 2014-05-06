@@ -1,11 +1,16 @@
 ---
 
 
+
 - name: Upload code
-  synchronize: src=../harviewer dest={{ project.root }}
+  local_action: command rsync -vaz -e ssh
+                              --rsync-path='sudo rsync'
+                              --exclude='.*'
+                              --exclude='*.pyc'
+                              ../harviewer
+                              {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
   tags:
     - update_code
-  sudo: True
 
 
 - name: Install php-fastcgi required packages
