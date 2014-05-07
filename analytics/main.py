@@ -19,12 +19,13 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=60)
 
 @app.route('/')
 def home():
-
     return render_template('home.html')
+
 
 @app.route('/powerup')
 def test():
     return render_template('powerup.html')
+
 
 @app.route('/compare_powerup', methods=['GET', 'POST'])
 def compare_powerup():
@@ -110,6 +111,11 @@ def compare_directly():
 @app.route('/nginxpubsub', methods=['GET', 'POST'])
 def nginxpubsub():
     return render_template('nginxpubsub.html')
+
+
+@app.route('/homemaxcdn', methods=['GET', 'POST'])
+def homecdn():
+    return render_template('home_maxcdn_single.html')
 
 
 if __name__ == '__main__':
