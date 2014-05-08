@@ -30,19 +30,44 @@ $(document).ready(function(e) {
         $(".loading").css('display', 'block');
 
         $.ajax({
-                url: '/compare_powerup',
+                url: '/compare',
                 type: 'POST',
                 data: $('#powerup-form').serialize(),
+
                 success: function(resp) {
                     $(".loading").css('display', 'none');
 
                     $( ".content-powerup" ).append(resp);
                 }
+
             }
         )
 
         return false;
 
     });
+
+
+
+    $('#httper').on('submit', function() {
+        $('#httper').find('button')[0].type = 'button';
+        $.ajax({
+                url: '/',
+                type: 'POST',
+                data: $('#httper').serialize(),
+
+                success: function(resp) {
+                    $("#results").empty();
+                    $("#results").append(resp);
+                }
+
+            }
+        )
+
+        return false;
+
+    });
+
+
 
 })

@@ -1,0 +1,98 @@
+
+    <header>
+        <div class="row server-row">
+            <div class="col-xs-9">
+                <div class="row">
+                    <div class="col col-xs-4"></div>
+                    <div class="col col-xs-8">
+                        <div class="row">
+                            <div class="col-xs-12">Origin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-xs-3 diff"></div>
+        </div>
+    </header>
+    <section>
+
+        {% for score in scores %}
+            <div class="row server-row">
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col col-xs-4">{{ score }}</div>
+                        <div class="col col-xs-8">
+                            <div class="row">
+                                <div class="col-xs-12 {{ scores.get(score) }}">
+                                    {% if status %}
+                                        {{ status }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-xs-3 diff"></div>
+            </div>
+        {% endfor %}
+
+        <div class="row server-row">
+            <div class="col-xs-9">
+                <div class="row">
+                    <div class="col col-xs-4">Page Load Time</div>
+                </div>
+            </div>
+            <div class="col col-xs-3 diff"></div>
+        </div>
+
+        {% for location in locations %}
+            <div class="row server-row" id="server-atl">
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col col-xs-4">
+                            <img class="flag" src="/static/img/flag_vietnam.png" style="width: 40px; height: 24px">
+                            <span data-field="city">{{ location | safe() }}</span>
+                        </div>
+
+                        <div class="col col-xs-8" data-domain="">
+                            <div class="row">
+                                <div class="col-xs-12 pageload_time">
+                                    {% if status %}
+                                        {{ status }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-xs-3 diff"></div>
+            </div>
+        {% endfor %}
+
+    </section>
+
+    <script type="text/javascript" language="javascript" charset="utf-8">
+        function messageReceived(text, id, channel) {
+
+            data = JSON.parse(text);
+
+            for (var key in data) {
+                $(key).empty();
+                var class_name = '.' + key;
+                $(class_name).empty();
+                $(class_name).append(data[key]);
+            }
+
+        };
+
+        var pushstream = new PushStream({
+          host: window.location.hostname,
+          port: window.location.port,
+          modes: "stream"
+        });
+
+        pushstream.onmessage = messageReceived;
+        pushstream.addChannel('{{ channel_id }}');
+        pushstream.connect();
+
+    </script>

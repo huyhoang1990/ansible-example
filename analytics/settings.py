@@ -1,10 +1,4 @@
-
-
-# API_URL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?url='
-# YSLOW_JS = 'static/js/yslow.js'
-# NETSNIFF = 'static/js/netsniff.js'
-# HARSTORE = '/var/www/har/file/'
-# HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='
+#! coding: utf-8
 
 
 REDIS_SERVER = '127.0.0.1:6379:0'
@@ -24,3 +18,10 @@ YSLOW_JS = '/static/js/yslow.js'
 HARSTORE = '/srv/harviewer/files/'
 
 NETSNIFF = '/static/js/netsniff.js'
+
+# HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='
+
+LOCATIONS = {
+    'Ha Noi': '10.2.14.22',
+    'Ho Chi Minh': '10.2.14.24'
+}

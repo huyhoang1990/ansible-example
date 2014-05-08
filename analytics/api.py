@@ -9,6 +9,7 @@ from simplejson import dumps, loads
 from commands import getstatusoutput
 from pymongo import MongoClient as MongoDB
 
+import os
 import math
 import requests
 import settings
@@ -29,7 +30,7 @@ def parse_pagespeed_info(pagespeed_info):
                                       .get('ruleResults')
 
     result = {}
-    result['score'] = pagespeed_info.get('score')
+    result['pagespeed_score'] = pagespeed_info.get('score')
 
     for key in pagespeed_details:
         data = pagespeed_details.get(key).get('ruleImpact')
@@ -43,7 +44,7 @@ def parse_pagespeed_info(pagespeed_info):
     return result
 
 
-def get_pagespeed_info(url, created_time):
+def get_pagespeed_info(url, created_time, channel_id):
     if url:
         pagespeed_url = '%s%s' % (settings.PAGESPEED_URL, url)
 
@@ -52,6 +53,8 @@ def get_pagespeed_info(url, created_time):
         pagespeed_info = requests.get(pagespeed_url, headers=headers).json()
         if pagespeed_info:
             pagespeed_info = parse_pagespeed_info(pagespeed_info)
+            push_to_browser(channel_id, pagespeed_info)
+
             if pagespeed_info:
                 webpage_info = ANALYTICS.find_one({'url': url,
                                                    'created_time': created_time})
@@ -87,7 +90,7 @@ def parse_yslow_info(yslow_info):
     return result
 
 
-def get_yslow_info(url, created_time):
+def get_yslow_info(url, created_time, channel_id):
     if url:
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         print command
@@ -96,6 +99,8 @@ def get_yslow_info(url, created_time):
             yslow_info = xmltodict.parse(output).get('results')
             if yslow_info:
                 yslow_info = parse_yslow_info(yslow_info)
+                push_to_browser(channel_id, yslow_info)
+
                 if yslow_info:
                     webpage_info = ANALYTICS.find_one({'url': url,
                                                        'created_time': created_time})
@@ -114,7 +119,7 @@ def get_yslow_info(url, created_time):
     return False
 
 
-def get_harfile_info(url, created_time):
+def get_harfile_info(url, created_time, channel_id):
     if url:
         time_now = datetime.now().strftime('%Y-%m-%d+%H:%M:%S')
         host = urlparse(url).netloc
@@ -142,30 +147,36 @@ def get_harfile_info(url, created_time):
     return False
 
 
-def get_webpage_info(url, created_time):
+def get_webpage_info(url, created_time, channel_id):
     created_time = int(created_time)
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 
+    # if webpage_info:
+    #     if webpage_info.has_key('pagespeed') and \
+    #         webpage_info.has_key('yslow') and \
+    #         webpage_info.has_key('harfile'):
+    #
+    #         return {'pagespeed': webpage_info.get('pagespeed'),
+    #                 'yslow': webpage_info.get('yslow'),
+    #                 'harfile': webpage_info.get('harfile')}
+    #
+    #     return False
+    #
+    # else:
 
-    if webpage_info:
-        if webpage_info.has_key('pagespeed') and \
-            webpage_info.has_key('yslow') and \
-            webpage_info.has_key('harfile'):
-
-            return {'pagespeed': webpage_info.get('pagespeed'),
-                    'yslow': webpage_info.get('yslow'),
-                    'harfile': webpage_info.get('harfile')}
-
-        return False
-
-    else:
+    if not webpage_info:
         ANALYTICS.insert({'url': url,
                           'created_time': created_time})
 
-        CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url, created_time)
-        CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url, created_time)
-        CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url, created_time)
+        CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
+                                     created_time, channel_id)
+
+        CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
+                                     created_time, channel_id)
+
+        CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
+                                     created_time, channel_id)
 
         return False
 
@@ -182,5 +193,16 @@ def convert_size(size):
         return '%s %s' % (s, size_name[i])
     else:
         return '0B'
+
+
+def push_to_browser(channel_id, data):
+    import json
+    cmd = "curl -s -v -X POST 'http://localhost/pub?id=%s' -d '%s'" % \
+            (channel_id, json.dumps(data))
+    print cmd
+
+    os.system(cmd)
+
+    return True
 
 
