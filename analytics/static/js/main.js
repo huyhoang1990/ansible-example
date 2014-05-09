@@ -2,55 +2,27 @@
 
 $(document).ready(function(e) {
 
-    $('#webpage-form').on('submit', function() {
-
-        $(".content").empty();
-        $(".loading").css('display', 'block');
-
-        $.ajax({
-                url: '/compare_directly',
-                type: 'POST',
-                data: $('#webpage-form').serialize(),
-                success: function(resp) {
-                    $(".loading").css("display", "none");
-
-                    $(".content").append(resp);
-                }
-            }
-        )
-
-        return false;
-
-    });
-
-
-    $('#powerup-form').on('submit', function() {
-
-        $(".content-powerup").empty();
-        $(".loading").css('display', 'block');
-
-        $.ajax({
-                url: '/compare',
-                type: 'POST',
-                data: $('#powerup-form').serialize(),
-
-                success: function(resp) {
-                    $(".loading").css('display', 'none');
-
-                    $( ".content-powerup" ).append(resp);
-                }
-
-            }
-        )
-
-        return false;
-
-    });
-
-
-
     $('#httper').on('submit', function() {
 //        $('#httper').find('button')[0].type = 'button';
+
+        var scores = ['pagespeed_score', 'yslow_score',
+            'page_size', 'total_request', 'location']
+
+//        var scores = {
+//            'Page Speed Grade': 'pagespeed_score',
+//            'Yslow Grade': 'yslow_score',
+//            'Total Page Size': 'page_size',
+//            'Total # of requests': 'total_request',
+//
+//        }
+
+        for (var index in scores) {
+            var class_name = '.' + scores[index];
+            console.log(class_name);
+            $(class_name).empty();
+            $(class_name).append('Checking...');
+        }
+
         $.ajax({
                 url: '/',
                 type: 'POST',
