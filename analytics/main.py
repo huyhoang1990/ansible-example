@@ -131,6 +131,13 @@ def home():
         url = request.form.get('url')
         if url:
             url = url.strip()
+            is_webpage = api.is_webpage(url)
+            if is_webpage is None:
+                abort(400)
+
+            if is_webpage is False:
+                scores = {}
+
             channel_id = str(time.time())
             create_time = int(time.time())
 
@@ -140,7 +147,8 @@ def home():
                                    status='Checking....',
                                    locations=settings.LOCATIONS,
                                    scores=scores,
-                                   channel_id=channel_id)
+                                   channel_id=channel_id,
+                                   is_webpage=is_webpage)
 
         abort(400)
 
