@@ -11,6 +11,7 @@ from pymongo import MongoClient as MongoDB
 
 import os
 import math
+import urllib
 import requests
 import settings
 import xmltodict
@@ -196,9 +197,9 @@ def convert_size(size):
 
 
 def push_to_browser(channel_id, data):
-    import json
+
     cmd = "curl -s -v -X POST 'http://localhost/pub?id=%s' -d '%s'" % \
-            (channel_id, json.dumps(data))
+            (channel_id, dumps(data))
     print cmd
 
     os.system(cmd)
@@ -206,3 +207,13 @@ def push_to_browser(channel_id, data):
     return True
 
 
+def is_webpage(url):
+    try:
+        info = urllib.urlopen(url).info()
+        content_type = info.get('Content-Type')
+        if 'text/html' in content_type:
+            return True
+
+        return False
+    except:
+        return None
