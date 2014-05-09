@@ -3,7 +3,7 @@
 $(document).ready(function(e) {
 
     $('#httper').on('submit', function() {
-//        $('#httper').find('button')[0].type = 'button';
+        $('#httper').find('button')[0].type = 'button';
 
         var scores = ['pagespeed_score', 'yslow_score',
             'page_size', 'total_request', 'location']
