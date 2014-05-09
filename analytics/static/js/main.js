@@ -50,7 +50,7 @@ $(document).ready(function(e) {
 
 
     $('#httper').on('submit', function() {
-        $('#httper').find('button')[0].type = 'button';
+//        $('#httper').find('button')[0].type = 'button';
         $.ajax({
                 url: '/',
                 type: 'POST',
