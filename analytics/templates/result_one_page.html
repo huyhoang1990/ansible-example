@@ -54,9 +54,9 @@
                             <span data-field="city">{{ location | safe() }}</span>
                         </div>
 
-                        <div class="col col-xs-8" data-domain="">
+                        <div class="col col-xs-8">
                             <div class="row">
-                                <div class="col-xs-12 location pageload_time">
+                                <div class="col-xs-12 location pageload_time" id="{{ locations.get(location).get('id') }}">
                                     {% if status %}
                                         {{ status }}
                                     {% endif %}
@@ -75,14 +75,28 @@
         function messageReceived(text, id, channel) {
 
             data = JSON.parse(text);
+            var host = window.location.hostname;
 
-            for (var key in data) {
-                $(key).empty();
-                var class_name = '.' + key;
-                $(class_name).empty();
-                $(class_name).append(data[key]);
+            if (host == '{{ master_server }}'){
+                for (var key in data) {
+                    var class_name = '.' + key;
+                    $(class_name).empty();
+                    $(class_name).append(data[key]);
+                }
             }
-
+            else {
+                var servers = {{ cluster_servers | safe }}
+                console.log(servers);
+                for (key in servers){
+                    var id_name = '#' + servers[key]['id'];
+                    console.log(id_name);
+                    var server_host = servers[key]['host'];
+                    if (host == server_host){
+                        $(id_name).empty();
+                        $(id_name).append(data['pageload_time']);
+                    }
+                }
+            }
         };
 
         var pushstream = new PushStream({
@@ -94,5 +108,15 @@
         pushstream.onmessage = messageReceived;
         pushstream.addChannel('{{ channel_id }}');
         pushstream.connect();
+
+//        var pushstream = new PushStream({
+//          host: '10.2.14.24',
+//          port: window.location.port,
+//          modes: "stream"
+//        });
+//
+//        pushstream.onmessage = messageReceived;
+//        pushstream.addChannel('{{ channel_id }}');
+//        pushstream.connect();
 
     </script>

@@ -4,6 +4,7 @@
 from rq import Queue
 from redis import Redis
 from datetime import timedelta
+from simplejson import dumps, loads
 from flask import (Flask, jsonify, request, abort,
                    render_template, url_for, redirect)
 
@@ -15,6 +16,7 @@ import settings
 app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=60)
+
 
 
 # @app.route('/')
@@ -143,12 +145,16 @@ def home():
 
             api.get_webpage_info(url, create_time, channel_id)
 
+            cluster_servers = api.get_cluster_servers()
+
             return render_template('result_one_page.html',
                                    status='Checking....',
                                    locations=settings.LOCATIONS,
                                    scores=scores,
                                    channel_id=channel_id,
-                                   is_webpage=is_webpage)
+                                   is_webpage=is_webpage,
+                                   master_server=settings.MASTER_SERVER,
+                                   cluster_servers=dumps(cluster_servers))
 
         abort(400)
 

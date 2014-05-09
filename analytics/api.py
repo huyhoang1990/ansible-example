@@ -179,6 +179,8 @@ def get_webpage_info(url, created_time, channel_id):
         CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
                                      created_time, channel_id)
 
+        CREATE_WEBPAGE_QUEUE.enqueue(post_to_cluster_server)
+
         return False
 
 
@@ -217,3 +219,23 @@ def is_webpage(url):
         return False
     except:
         return None
+
+
+def post_to_cluster_server():
+    cluster_servers = get_cluster_servers()
+    for server_name in cluster_servers:
+        host = 'http://%s' % cluster_servers[server_name]['host']
+        requests.post(host)
+
+    return True
+
+
+def get_cluster_servers():
+    cluster_servers = {}
+    for server_name in settings.LOCATIONS:
+        server_info = settings.LOCATIONS[server_name]
+        if settings.MASTER_SERVER != server_info.get('host'):
+            cluster_servers[server_name] = server_info
+
+    return cluster_servers
+

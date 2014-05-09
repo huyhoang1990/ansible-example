@@ -21,7 +21,10 @@ NETSNIFF = '/static/js/netsniff.js'
 
 # HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='
 
+
 LOCATIONS = {
-    'Ha Noi': '10.2.14.22',
-    'Ho Chi Minh': '10.2.14.24'
+    'Ha Noi': {'host': '10.2.14.22', 'id': 'hn'},
+    'Ho Chi Minh': {'host': '10.2.14.24', 'id': 'hcm'}
 }
+
+MASTER_SERVER = '10.2.14.24'
