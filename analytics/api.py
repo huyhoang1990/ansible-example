@@ -168,8 +168,8 @@ def get_webpage_info(url, created_time, channel_id, is_slaver):
             CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
                                         created_time, channel_id)
 
-            CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
-                                         created_time, channel_id)
+            # CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
+            #                              created_time, channel_id)
 
             CREATE_WEBPAGE_QUEUE.enqueue(post_to_slaver_server, url,
                                          created_time, channel_id)
