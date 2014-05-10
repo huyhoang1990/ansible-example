@@ -8,16 +8,28 @@ $(document).ready(function(e) {
         var scores = ['pagespeed_score', 'yslow_score',
             'page_size', 'total_request', 'location']
 
+        var path_name = window.location.pathname;
 
         for (var index in scores) {
-            var class_name = '.' + scores[index];
-            console.log(class_name);
-            $(class_name).empty();
-            $(class_name).append('Checking...');
+            if (path_name == '/'){
+                var class_name = '.' + scores[index];
+                $(class_name).empty();
+                $(class_name).append('Checking...');
+            }
+
+            if (path_name == '/powerup') {
+                var class_name_1 = '.' + scores[index] + '1';
+                var class_name_2 = '.' + scores[index] + '2';
+                $(class_name_1).empty();
+                $(class_name_2).empty();
+                $(class_name_1).append('Checking...');
+                $(class_name_2).append('Checking...');
+            }
+
         }
 
         $.ajax({
-                url: '/',
+                url: path_name,
                 type: 'POST',
                 data: $('#httper').serialize(),
 
@@ -29,9 +41,11 @@ $(document).ready(function(e) {
             }
         )
 
+
         return false;
 
     });
+
 
 
 

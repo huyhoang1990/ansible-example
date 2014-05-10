@@ -54,7 +54,7 @@
                                     <div class="col-xs-4" style="padding-top: 8px;">
                                     </div>
                                     <div class="col-xs-8 input">
-                                        <input class="form-control" type="text" name="url" required placeholder="http://example.com" autofocus="">
+                                        <input class="form-control" type="text" name="{% if render_powerup %}powerup_url{% else %}url{% endif %}" required placeholder="http://example.com" autofocus="">
                                     </div>
                                 </div>
                             </div>

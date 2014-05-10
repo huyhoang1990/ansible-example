@@ -45,7 +45,7 @@ def parse_pagespeed_info(pagespeed_info):
     return result
 
 
-def get_pagespeed_info(url, created_time, channel_id):
+def get_pagespeed_info(url, created_time, channel_id, is_powerup_domain=None):
     if url:
         pagespeed_url = '%s%s' % (settings.PAGESPEED_URL, url)
 
@@ -54,6 +54,12 @@ def get_pagespeed_info(url, created_time, channel_id):
         pagespeed_info = requests.get(pagespeed_url, headers=headers).json()
         if pagespeed_info:
             pagespeed_info = parse_pagespeed_info(pagespeed_info)
+
+            if is_powerup_domain is True:
+                pagespeed_info['is_powerup_domain'] = True
+            if is_powerup_domain is False:
+                pagespeed_info['is_powerup_domain'] = False
+
             push_to_browser(channel_id, pagespeed_info)
 
             if pagespeed_info:
@@ -91,7 +97,8 @@ def parse_yslow_info(yslow_info):
     return result
 
 
-def get_yslow_info(url, created_time, channel_id, is_slaver):
+def get_yslow_info(url, created_time, channel_id,
+                   is_slaver, is_powerup_domain=None):
     if url:
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         print command
@@ -102,6 +109,11 @@ def get_yslow_info(url, created_time, channel_id, is_slaver):
                 yslow_info = parse_yslow_info(yslow_info)
                 if is_slaver:
                     yslow_info['is_slaver'] = True
+
+                if is_powerup_domain is True:
+                    yslow_info['is_powerup_domain'] = True
+                if is_powerup_domain is False:
+                    yslow_info['is_powerup_domain'] = False
 
                 push_to_browser(channel_id, yslow_info, is_slaver)
 
@@ -151,7 +163,9 @@ def get_harfile_info(url, created_time, channel_id):
     return False
 
 
-def get_webpage_info(url, created_time, channel_id, is_slaver):
+def get_webpage_info(url, created_time, channel_id,
+                     is_slaver, is_powerup_domain=None):
+
     created_time = int(created_time)
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
@@ -162,17 +176,20 @@ def get_webpage_info(url, created_time, channel_id, is_slaver):
                           'created_time': created_time})
 
         CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
-                                     created_time, channel_id, is_slaver)
+                                     created_time, channel_id,
+                                     is_slaver, is_powerup_domain=is_powerup_domain)
 
         if not is_slaver:
             CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
-                                        created_time, channel_id)
+                                        created_time, channel_id,
+                                        is_powerup_domain=is_powerup_domain)
 
             # CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
             #                              created_time, channel_id)
 
             CREATE_WEBPAGE_QUEUE.enqueue(post_to_slaver_server, url,
-                                         created_time, channel_id)
+                                         created_time, channel_id,
+                                         is_powerup_domain=is_powerup_domain)
 
         return False
 
@@ -218,15 +235,21 @@ def is_webpage(url):
         return None
 
 
-def post_to_slaver_server(url, created_time, channel_id):
+def post_to_slaver_server(url, created_time, channel_id, is_powerup_domain=None):
     slaver_servers = get_slaver_servers()
     for server_name in slaver_servers:
+
+
+
         host = 'http://%s' % slaver_servers[server_name]['host']
 
         params = {'called_from': 'master',
                   'created_time': created_time,
                   'channel_id': channel_id,
                   'url': url}
+
+        if is_powerup_domain is not None:
+            host = 'http://%s/powerup' % slaver_servers[server_name]['host']
 
         requests.post(host, params=params)
 
@@ -242,3 +265,6 @@ def get_slaver_servers():
 
     return slaver_servers
 
+
+def get_temporary_url(powerup_url):
+    return 'http://google.com'

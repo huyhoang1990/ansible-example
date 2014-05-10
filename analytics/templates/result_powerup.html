@@ -74,7 +74,7 @@
 
                     <div class="col col-xs-4">
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-xs-12 location1" id="{{ locations.get(location).get('id') }}1">
                                 {% if status %}
                                     {{ status }}
                                 {% endif %}
@@ -83,7 +83,7 @@
                     </div>
                     <div class="col col-xs-4">
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-xs-12 location2" id="{{ locations.get(location).get('id') }}2">
                                 {% if status %}
                                     {{ status }}
                                 {% endif %}
@@ -96,6 +96,74 @@
         </div>
     {% endfor %}
 
-
-
 </section>
+
+
+<script type="text/javascript" language="javascript" charset="utf-8">
+    var slaver_servers = {{ slaver_servers | safe }}
+
+    var master_location_id = '{{ master_location_id }}';
+
+    function messageReceived(text, id, channel) {
+        data = JSON.parse(text);
+        var host = window.location.hostname;
+        console.log(data);
+
+        if (data.hasOwnProperty('is_slaver') == false){
+            for (var key in data) {
+                if (data['is_powerup_domain'] == true) {
+                    var class_name = '.' + key + '1';
+                }
+                if (data['is_powerup_domain'] == false){
+                    var class_name = '.' + key + '2';
+                }
+
+                if (key == 'pageload_time'){
+                    if (data['is_powerup_domain'] == true) {
+                        var name_id = '#' + master_location_id + '1';
+                    }
+                    if (data['is_powerup_domain'] == false) {
+                        var name_id = '#' + master_location_id + '2';
+                    }
+
+                    $(name_id).empty();
+                    $(name_id).append(data[key]);
+                } else {
+                    $(class_name).empty();
+                    $(class_name).append(data[key]);
+                }
+
+            }
+        } else {
+            for (key in slaver_servers){
+                if (data['is_powerup_domain'] == true) {
+                    var name_id = '#' + slaver_servers[key]['id'] + '1';
+                }
+                if (data['is_powerup_domain'] == false) {
+                    var name_id = '#' + slaver_servers[key]['id'] + '2';
+                }
+
+                var server_host = slaver_servers[key]['host'];
+                if (host != server_host){
+                    $(name_id).empty();
+                    $(name_id).append(data['pageload_time']);
+                }
+            }
+        }
+
+    };
+
+    var pushstream = new PushStream({
+          host: window.location.hostname,
+          port: window.location.port,
+          modes: "stream"
+    });
+
+    pushstream.onmessage = messageReceived;
+    pushstream.addChannel('{{ channel_id }}');
+    pushstream.connect();
+
+
+</script>
+
+

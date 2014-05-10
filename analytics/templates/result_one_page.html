@@ -74,7 +74,7 @@
     <script type="text/javascript" language="javascript" charset="utf-8">
         var slaver_servers = {{ slaver_servers | safe }}
         var master_location_id = '{{ master_location_id }}'
-        console.log(master_location_id);
+
         function messageReceived(text, id, channel) {
 
             data = JSON.parse(text);

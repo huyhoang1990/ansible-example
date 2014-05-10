@@ -143,7 +143,8 @@ section.container {
     font-size: 19px;
 }
 #pinger,
-#httper {
+#httper,
+#powerup_httper{
     margin-top: 36px;
     position: relative;
 }

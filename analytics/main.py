@@ -48,7 +48,8 @@ def home():
                 channel_id = request.args.get('channel_id')
                 url = request.args.get('url')
 
-                api.get_webpage_info(url, created_time, channel_id, is_slaver)
+                api.get_webpage_info(url, created_time,
+                                     channel_id, is_slaver)
 
                 return 'OK'
 
@@ -62,9 +63,10 @@ def home():
                 scores = {}
 
             channel_id = str(time.time())
-            create_time = int(time.time())
+            created_time = int(time.time())
 
-            api.get_webpage_info(url, create_time, channel_id, is_slaver)
+            api.get_webpage_info(url, created_time,
+                                 channel_id, is_slaver)
 
             slaver_servers = api.get_slaver_servers()
             locations = settings.LOCATIONS
@@ -104,6 +106,67 @@ def compare_powerup():
                                status='Ready',
                                scores=scores,
                                locations=settings.LOCATIONS)
+
+    else:
+        powerup_url = request.form.get('powerup_url')
+        is_slaver = None
+
+
+        # Xử lý trường hợp request post từ master tới slave
+        if not powerup_url:
+            called_from = request.args.get('called_from')
+            if called_from:
+                is_slaver = True
+                created_time = request.args.get('created_time')
+                channel_id = request.args.get('channel_id')
+                powerup_url = request.args.get('url')
+                temporary_url = api.get_temporary_url(powerup_url)
+                api.get_webpage_info(powerup_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=True)
+
+                api.get_webpage_info(temporary_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=False)
+
+                return 'OK'
+
+
+        if powerup_url:
+            powerup_url = powerup_url.strip()
+            temporary_url = api.get_temporary_url(powerup_url)
+
+            channel_id = str(time.time())
+            created_time = int(time.time())
+
+            slaver_servers = api.get_slaver_servers()
+            locations = settings.LOCATIONS
+
+            master_location_id = None
+
+            for server in locations:
+                if locations[server]['host'] == settings.MASTER_SERVER:
+                    master_location_id = locations[server]['id']
+
+            api.get_webpage_info(powerup_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=True)
+
+            api.get_webpage_info(temporary_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=False)
+
+            return render_template('result_powerup.html',
+                                   status='Checking...',
+                                   locations=settings.LOCATIONS,
+                                   scores=scores,
+                                   channel_id=channel_id,
+                                   slaver_servers=slaver_servers,
+                                   master_server=settings.MASTER_SERVER,
+                                   master_location_id=master_location_id)
+
+
+        abort(400)
 
 
 if __name__ == '__main__':
