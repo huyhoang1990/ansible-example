@@ -15,17 +15,17 @@ body {
     position: relative;
 }
 
-#logo {
-    background: url('/img/logo.png') no-repeat center center;
-    display: block;
-    height: 58px;
-    width: 130px;
-    text-indent: -1000em;
-    margin-top: 0;
-    margin-bottom: 0;
-    line-height: 58px;
-    float: left;
-}
+/*#logo {*/
+    /*background: url('/img/logo.png') no-repeat center center;*/
+    /*display: block;*/
+    /*height: 58px;*/
+    /*width: 130px;*/
+    /*text-indent: -1000em;*/
+    /*margin-top: 0;*/
+    /*margin-bottom: 0;*/
+    /*line-height: 58px;*/
+    /*float: left;*/
+/*}*/
 
 .header .nav {
     margin-top: 12px;
@@ -942,3 +942,12 @@ div.orange-button.inactive:hover {
 }
 .ffSelectMenuMidBG {background:url(images/sides.png) repeat-y right 0;}
 .ffSelectMenuMid  {max-height: 200px; overflow: auto; background: url(images/sides.png) repeat-y 0 0; padding-left: 4px;margin-right:4px;}
+
+
+
+#logo {
+    text-decoration: none !important;
+    font-size: 30px;
+    font-weight: bold;
+    color: #ff7012;
+}
