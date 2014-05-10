@@ -72,31 +72,41 @@
     </section>
 
     <script type="text/javascript" language="javascript" charset="utf-8">
+        var slaver_servers = {{ slaver_servers | safe }}
+        var master_location_id = '{{ master_location_id }}'
+        console.log(master_location_id);
         function messageReceived(text, id, channel) {
 
             data = JSON.parse(text);
             var host = window.location.hostname;
 
-            if (host == '{{ master_server }}'){
+            if (data.hasOwnProperty('is_slaver') == false){
                 for (var key in data) {
                     var class_name = '.' + key;
-                    $(class_name).empty();
-                    $(class_name).append(data[key]);
+                    if (key == 'pageload_time'){
+                        var name_id = '#' + master_location_id;
+                        $(name_id).empty();
+                        $(name_id).append(data[key]);
+                    } else {
+                        $(class_name).empty();
+                        $(class_name).append(data[key]);
+                    }
+
                 }
-            }
-            else {
-                var servers = {{ cluster_servers | safe }}
-                console.log(servers);
-                for (key in servers){
-                    var id_name = '#' + servers[key]['id'];
-                    console.log(id_name);
-                    var server_host = servers[key]['host'];
-                    if (host == server_host){
-                        $(id_name).empty();
-                        $(id_name).append(data['pageload_time']);
+
+            } else {
+
+                for (key in slaver_servers){
+                    var name_id = '#' + slaver_servers[key]['id'];
+                    var server_host = slaver_servers[key]['host'];
+                    if (host != server_host){
+                        $(name_id).empty();
+                        $(name_id).append(data['pageload_time']);
                     }
                 }
+
             }
+
         };
 
         var pushstream = new PushStream({
@@ -108,15 +118,5 @@
         pushstream.onmessage = messageReceived;
         pushstream.addChannel('{{ channel_id }}');
         pushstream.connect();
-
-//        var pushstream = new PushStream({
-//          host: '10.2.14.24',
-//          port: window.location.port,
-//          modes: "stream"
-//        });
-//
-//        pushstream.onmessage = messageReceived;
-//        pushstream.addChannel('{{ channel_id }}');
-//        pushstream.connect();
 
     </script>

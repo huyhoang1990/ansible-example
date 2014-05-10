@@ -27,4 +27,5 @@ LOCATIONS = {
     'Ho Chi Minh': {'host': '10.2.14.24', 'id': 'hcm'}
 }
 
-MASTER_SERVER = '10.2.14.24'
+
+MASTER_SERVER = '10.2.14.22'

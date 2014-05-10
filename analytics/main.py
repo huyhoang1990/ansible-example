@@ -131,6 +131,21 @@ def home():
 
     else:
         url = request.form.get('url')
+        is_slaver = None
+
+        # Xử lý trường hợp request post từ master tới slave
+        if not url:
+            called_from = request.args.get('called_from')
+            if called_from:
+                is_slaver = True
+                created_time = request.args.get('created_time')
+                channel_id = request.args.get('channel_id')
+                url = request.args.get('url')
+
+                api.get_webpage_info(url, created_time, channel_id, is_slaver)
+
+                return 'OK'
+
         if url:
             url = url.strip()
             is_webpage = api.is_webpage(url)
@@ -143,9 +158,16 @@ def home():
             channel_id = str(time.time())
             create_time = int(time.time())
 
-            api.get_webpage_info(url, create_time, channel_id)
+            api.get_webpage_info(url, create_time, channel_id, is_slaver)
 
-            cluster_servers = api.get_cluster_servers()
+            slaver_servers = api.get_slaver_servers()
+            locations = settings.LOCATIONS
+
+            master_location_id = None
+
+            for server in locations:
+                if locations[server]['host'] == settings.MASTER_SERVER:
+                    master_location_id = locations[server]['id']
 
             return render_template('result_one_page.html',
                                    status='Checking....',
@@ -153,8 +175,9 @@ def home():
                                    scores=scores,
                                    channel_id=channel_id,
                                    is_webpage=is_webpage,
+                                   master_location_id=master_location_id,
                                    master_server=settings.MASTER_SERVER,
-                                   cluster_servers=dumps(cluster_servers))
+                                   slaver_servers=dumps(slaver_servers))
 
         abort(400)
 

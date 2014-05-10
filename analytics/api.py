@@ -91,7 +91,7 @@ def parse_yslow_info(yslow_info):
     return result
 
 
-def get_yslow_info(url, created_time, channel_id):
+def get_yslow_info(url, created_time, channel_id, is_slaver):
     if url:
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         print command
@@ -100,7 +100,10 @@ def get_yslow_info(url, created_time, channel_id):
             yslow_info = xmltodict.parse(output).get('results')
             if yslow_info:
                 yslow_info = parse_yslow_info(yslow_info)
-                push_to_browser(channel_id, yslow_info)
+                if is_slaver:
+                    yslow_info['is_slaver'] = True
+
+                push_to_browser(channel_id, yslow_info, is_slaver)
 
                 if yslow_info:
                     webpage_info = ANALYTICS.find_one({'url': url,
@@ -148,38 +151,28 @@ def get_harfile_info(url, created_time, channel_id):
     return False
 
 
-def get_webpage_info(url, created_time, channel_id):
+def get_webpage_info(url, created_time, channel_id, is_slaver):
     created_time = int(created_time)
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 
-    # if webpage_info:
-    #     if webpage_info.has_key('pagespeed') and \
-    #         webpage_info.has_key('yslow') and \
-    #         webpage_info.has_key('harfile'):
-    #
-    #         return {'pagespeed': webpage_info.get('pagespeed'),
-    #                 'yslow': webpage_info.get('yslow'),
-    #                 'harfile': webpage_info.get('harfile')}
-    #
-    #     return False
-    #
-    # else:
 
     if not webpage_info:
         ANALYTICS.insert({'url': url,
                           'created_time': created_time})
 
-        CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
-                                     created_time, channel_id)
-
         CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
-                                     created_time, channel_id)
+                                     created_time, channel_id, is_slaver)
 
-        CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
-                                     created_time, channel_id)
+        if not is_slaver:
+            CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
+                                        created_time, channel_id)
 
-        CREATE_WEBPAGE_QUEUE.enqueue(post_to_cluster_server)
+            CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
+                                         created_time, channel_id)
+
+            CREATE_WEBPAGE_QUEUE.enqueue(post_to_slaver_server, url,
+                                         created_time, channel_id)
 
         return False
 
@@ -198,10 +191,14 @@ def convert_size(size):
         return '0B'
 
 
-def push_to_browser(channel_id, data):
+def push_to_browser(channel_id, data, is_slaver=None):
+    if is_slaver:
+        cmd = "curl -s -v -X POST 'http://%s/pub?id=%s' -d '%s'" % \
+                (settings.MASTER_SERVER, channel_id, dumps(data))
 
-    cmd = "curl -s -v -X POST 'http://localhost/pub?id=%s' -d '%s'" % \
-            (channel_id, dumps(data))
+    else:
+        cmd = "curl -s -v -X POST 'http://localhost/pub?id=%s' -d '%s'" % \
+                (channel_id, dumps(data))
     print cmd
 
     os.system(cmd)
@@ -221,21 +218,27 @@ def is_webpage(url):
         return None
 
 
-def post_to_cluster_server():
-    cluster_servers = get_cluster_servers()
-    for server_name in cluster_servers:
-        host = 'http://%s' % cluster_servers[server_name]['host']
-        requests.post(host)
+def post_to_slaver_server(url, created_time, channel_id):
+    slaver_servers = get_slaver_servers()
+    for server_name in slaver_servers:
+        host = 'http://%s' % slaver_servers[server_name]['host']
+
+        params = {'called_from': 'master',
+                  'created_time': created_time,
+                  'channel_id': channel_id,
+                  'url': url}
+
+        requests.post(host, params=params)
 
     return True
 
 
-def get_cluster_servers():
-    cluster_servers = {}
+def get_slaver_servers():
+    slaver_servers = {}
     for server_name in settings.LOCATIONS:
         server_info = settings.LOCATIONS[server_name]
         if settings.MASTER_SERVER != server_info.get('host'):
-            cluster_servers[server_name] = server_info
+            slaver_servers[server_name] = server_info
 
-    return cluster_servers
+    return slaver_servers
 
