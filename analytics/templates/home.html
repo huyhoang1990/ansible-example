@@ -68,8 +68,12 @@
         </div>
         <div class="container">
             <div id="results">
+                {% if render_powerup %}
+                    {% include 'result_powerup.html' %}
+                {% else %}
+                    {% include 'result_one_page.html' %}
+                {% endif %}
 
-                {% include 'result_one_page.html' %}
 
             </div>
         </div>
