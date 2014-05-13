@@ -27,6 +27,9 @@ CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
 
 
 def parse_pagespeed_info(pagespeed_info):
+    if pagespeed_info.has_key('error'):
+        return {'pagespeed_score': 'None'}
+    
     pagespeed_details = pagespeed_info.get('formattedResults') \
                                       .get('ruleResults')
 
@@ -54,11 +57,9 @@ def get_pagespeed_info(url, created_time, channel_id, is_powerup_domain=None):
         pagespeed_info = requests.get(pagespeed_url, headers=headers).json()
         if pagespeed_info:
             pagespeed_info = parse_pagespeed_info(pagespeed_info)
-
-            if is_powerup_domain is True:
-                pagespeed_info['is_powerup_domain'] = True
-            if is_powerup_domain is False:
-                pagespeed_info['is_powerup_domain'] = False
+            
+            if is_powerup_domain is not None:
+                pagespeed_info['is_powerup_domain'] = is_powerup_domain
 
             push_to_browser(channel_id, pagespeed_info)
 
@@ -103,17 +104,27 @@ def get_yslow_info(url, created_time, channel_id,
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         print command
         status, output = getstatusoutput(command)
+        
         if status == 0:
-            yslow_info = xmltodict.parse(output).get('results')
+            try:
+                yslow_info = xmltodict.parse(output).get('results')
+            except:
+                yslow_info = {'pageload_time': 'None',
+                              'page_size': 'None',
+                              'total_request': 'None',
+                              'yslow_score': 'None',
+                              'is_powerup_domain': is_powerup_domain}
+                
+                push_to_browser(channel_id, yslow_info, is_slaver)
+                return False
+            
             if yslow_info:
                 yslow_info = parse_yslow_info(yslow_info)
                 if is_slaver:
                     yslow_info['is_slaver'] = True
-
-                if is_powerup_domain is True:
-                    yslow_info['is_powerup_domain'] = True
-                if is_powerup_domain is False:
-                    yslow_info['is_powerup_domain'] = False
+                    
+                if is_powerup_domain is not None:
+                    yslow_info['is_powerup_domain'] = is_powerup_domain
 
                 push_to_browser(channel_id, yslow_info, is_slaver)
 
