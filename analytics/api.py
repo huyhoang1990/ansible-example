@@ -18,6 +18,7 @@ import xmltodict
 
 DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
 ANALYTICS = DATABASE.analytics
+DOMAIN = DATABASE.domain
 
 host, port, db = settings.REDIS_ANALYTICS_QUEUE.split(':')
 TASK_QUEUE = Redis(host=host, port=int(port), db=int(db))
@@ -181,11 +182,11 @@ def get_webpage_info(url, created_time, channel_id,
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 
-
+    
     if not webpage_info:
         ANALYTICS.insert({'url': url,
                           'created_time': created_time})
-
+        
         CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
                                      created_time, channel_id,
                                      is_slaver, is_powerup_domain=is_powerup_domain)
@@ -278,4 +279,16 @@ def get_slaver_servers():
 
 
 def get_temporary_url(powerup_url):
-    return 'http://google.com'
+    info = DOMAIN.find_one({'domain': powerup_url})
+    if info:
+        return info.get('temporary_domain')
+    
+    return '%s#' % powerup_url
+
+def set_temporary_url(powerup_url, temporary_url):
+    DOMAIN.update({'domain': powerup_url},
+                  {'$set': {'temporary_domain': temporary_url}},
+                  upsert=True)
+    
+    return True
+    

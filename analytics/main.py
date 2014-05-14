@@ -98,20 +98,26 @@ def compare_powerup():
         'Total Page Size': 'page_size',
         'Total # of requests': 'total_request'
     }
-
+    
     if request.method == 'GET':
+        domain = request.args.get('domain')
+        temporary_domain = request.args.get('temporary_domain')
+        if domain and temporary_domain:
+            api.set_temporary_url(domain, temporary_domain)
+        
         render_powerup = True
         return render_template('home.html',
                                render_powerup=render_powerup,
                                status='Ready',
                                scores=scores,
-                               locations=settings.LOCATIONS)
+                               locations=settings.LOCATIONS,
+                               domain=domain,
+                               temporary_domain=temporary_domain)
 
     else:
         powerup_url = request.form.get('powerup_url')
         is_slaver = None
-
-
+        
         # Xử lý trường hợp request post từ master tới slave
         if not powerup_url:
             called_from = request.args.get('called_from')
@@ -122,18 +128,18 @@ def compare_powerup():
                 powerup_url = request.args.get('url')
                 temporary_url = api.get_temporary_url(powerup_url)
                 api.get_webpage_info(powerup_url, created_time,
-                                 channel_id, is_slaver,
-                                 is_powerup_domain=True)
+                                     channel_id, is_slaver,
+                                     is_powerup_domain=True)
 
                 api.get_webpage_info(temporary_url, created_time,
-                                 channel_id, is_slaver,
-                                 is_powerup_domain=False)
+                                     channel_id, is_slaver,
+                                     is_powerup_domain=False)
 
                 return 'OK'
-
-
+                    
         if powerup_url:
             powerup_url = powerup_url.strip()
+            
             temporary_url = api.get_temporary_url(powerup_url)
 
             channel_id = str(time.time())
