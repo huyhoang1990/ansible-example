@@ -45,6 +45,11 @@
             </div>
         </nav>
         <div id="httper-container">
+            <div class="container text-center">
+                <h2>Vccorp Website Speed Test</h2>
+                <p>Compare the speed of two websites from different locations around the world.</p>
+            </div>
+
             <form method="POST" id="httper" onsubmit="return false;">
                 <div class="alt">
                     <div class="container">
@@ -79,55 +84,55 @@
         </div>
 
 
-		<script>
-			function post_url(url){
-				var scores = ['pagespeed_score', 'yslow_score',
-            				  'page_size', 'total_request', 'location']
+        <script>
+            function post_url(url){
+                var scores = ['pagespeed_score', 'yslow_score',
+                              'page_size', 'total_request', 'location']
 
-		        var path_name = window.location.pathname;
-		
-		        for (var index in scores) {
-		            if (path_name == '/'){
-		                var class_name = '.' + scores[index];
-		                $(class_name).empty();
-		                $(class_name).append('Checking...');
-		            }
-		
-		            if (path_name == '/powerup') {
-		                var class_name_1 = '.' + scores[index] + '1';
-		                var class_name_2 = '.' + scores[index] + '2';
-		                $(class_name_1).empty();
-		                $(class_name_2).empty();
-		                $(class_name_1).append('Checking...');
-		                $(class_name_2).append('Checking...');
-		            }
-		
-		        }
-		
-		        $.ajax({
-		                url: path_name,
-		                type: 'POST',
-		                data: $('#httper').serialize(),
-		
-		                success: function(resp) {
-		                    $("#results").empty();
-		                    $("#results").append(resp);
-		                }
-		
-		            }
-		        )
-		
-		
-		        return false;
+                var path_name = window.location.pathname;
 
-			}
-			
-			var url = $('#httper').find('input')[0].value;
-			if (url != "") {
-				post_url(url);
-			}
-			
-		</script>
+                for (var index in scores) {
+                    if (path_name == '/'){
+                        var class_name = '.' + scores[index];
+                        $(class_name).empty();
+                        $(class_name).append('Checking...');
+                    }
+
+                    if (path_name == '/powerup') {
+                        var class_name_1 = '.' + scores[index] + '1';
+                        var class_name_2 = '.' + scores[index] + '2';
+                        $(class_name_1).empty();
+                        $(class_name_2).empty();
+                        $(class_name_1).append('Checking...');
+                        $(class_name_2).append('Checking...');
+                    }
+
+                }
+
+                $.ajax({
+                        url: path_name,
+                        type: 'POST',
+                        data: $('#httper').serialize(),
+
+                        success: function(resp) {
+                            $("#results").empty();
+                            $("#results").append(resp);
+                        }
+
+                    }
+                )
+
+
+                return false;
+
+            }
+
+            var url = $('#httper').find('input')[0].value;
+            if (url != "") {
+                post_url(url);
+            }
+
+        </script>
 
 
 
