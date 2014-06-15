@@ -36,7 +36,7 @@ def convert_image(folder):
 
     display_times.pop(0)
     # f = open('concat.txt', 'a')
-    f = open('concat', 'w')
+    f = open('%sconcat.txt' % folder, 'w')
     f.write('ffconcat version 1.0\n')
     f.write('file screenshot0.png\n')
     f.write('duration 0\n')

@@ -207,17 +207,44 @@ def get_webpage_info(url, created_time, channel_id,
         return False
 
 
-def get_video_filmstrip(url, created_time, channel_id):
-    # phantomjs loadreport.js http://dantri.com.vn filmstrip hoanghh
-    command = 'cd %s ; sudo phantomjs loadreport.js %s filmstrip %s_%s' % \
-              (settings.LOADREPORT, url, channel_id, urlparse(url).netloc)
+def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
 
+
+    for url in [powerup_url, temporary_url]:
+        host = urlparse(url).netloc
+        if url == temporary_url:
+            host = '%s_' % host
+
+        command = 'cd %s ;sudo phantomjs loadreport.js %s filmstrip %s_%s' % \
+                  (settings.LOADREPORT, url, channel_id, host)
+
+        print command
+        status, output = getstatusoutput(command)
+
+        if status == 0:
+            command = 'cd %s; sudo python convert.py %s/filmstrip/%s_%s/' % \
+                      (settings.LOADREPORT, settings.LOADREPORT,
+                       channel_id, host)
+
+            status, output = getstatusoutput(command)
+            if status == 0:
+                command = 'cd %s/filmstrip/%s_%s; ' \
+                          'sudo ffmpeg -i concat.txt -vcodec libx264 -pix_fmt yuv420p out.mp4' % \
+                          (settings.LOADREPORT, channel_id, host)
+
+                print command
+                status, output = getstatusoutput(command)
+                print 'perfect'
+
+    # ffmpeg -i out1.mp4 -vf 'pad=2*iw:ih [left]; movie=out2.mp4 [right];[left][right] overlay=main_w/2:0' out3.mp4
+    # /srv/loadreport/filmstrip/1402828811.0_kenh14.vn
+    command = "cd %s/filmstrip/%s_%s ;" \
+              "ffmpeg -i out.mp4 -vf 'pad=2*iw:ih [left]; movie=%s/filmstrip/%s_%s_/out.mp4 [right];[left][right] overlay=main_w/2:0' out_merge.mp4" % \
+              (settings.LOADREPORT, channel_id, urlparse(powerup_url).netloc,
+               settings.LOADREPORT, channel_id, urlparse(temporary_url))
     print command
     status, output = getstatusoutput(command)
-
-    if status == 0:
-        print 'perfect'
-
+    print 'perfect'
 
 def convert_size(size):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")

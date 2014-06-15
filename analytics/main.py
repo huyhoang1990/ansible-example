@@ -163,7 +163,8 @@ def compare_powerup():
             #                      is_powerup_domain=False)
 
             #goi thẳng đến hàm filmstrip ở đây luôn
-            api.get_video_filmstrip(powerup_url, created_time, channel_id)
+            api.get_video_filmstrip(powerup_url, temporary_url,
+                                    created_time, channel_id)
 
             return render_template('result_powerup.html',
                                    status='Checking...',
