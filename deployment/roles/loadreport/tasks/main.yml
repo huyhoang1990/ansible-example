@@ -11,3 +11,11 @@
                               {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
   tags:
     - update_code
+
+
+- name: change ownership of remote source code folder (loadreport)
+  file: path={{ project.root }}/loadreport state=directory
+        owner={{ server.user}} recurse=yes
+  sudo: True
+  tags:
+    - update_code_analytics

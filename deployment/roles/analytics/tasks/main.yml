@@ -9,7 +9,7 @@
                               ../analytics
                               {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
   tags:
-    - update_code_analytics_only
+    - update_code
 
 
 - name: change ownership of remote source code folder

@@ -150,20 +150,20 @@ def compare_powerup():
 
             master_location_id = None
 
-            for server in locations:
-                if locations[server]['host'] == settings.MASTER_SERVER:
-                    master_location_id = locations[server]['id']
-
-            api.get_webpage_info(powerup_url, created_time,
-                                 channel_id, is_slaver,
-                                 is_powerup_domain=True)
-
-            api.get_webpage_info(temporary_url, created_time,
-                                 channel_id, is_slaver,
-                                 is_powerup_domain=False)
+            # for server in locations:
+            #     if locations[server]['host'] == settings.MASTER_SERVER:
+            #         master_location_id = locations[server]['id']
+            #
+            # api.get_webpage_info(powerup_url, created_time,
+            #                      channel_id, is_slaver,
+            #                      is_powerup_domain=True)
+            #
+            # api.get_webpage_info(temporary_url, created_time,
+            #                      channel_id, is_slaver,
+            #                      is_powerup_domain=False)
 
             #goi thẳng đến hàm filmstrip ở đây luôn
-
+            api.get_video_filmstrip(powerup_url, created_time, channel_id)
 
             return render_template('result_powerup.html',
                                    status='Checking...',

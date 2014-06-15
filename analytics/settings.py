@@ -19,6 +19,8 @@ HARSTORE = '/srv/harviewer/files/'
 
 NETSNIFF = '/static/js/netsniff.js'
 
+LOADREPORT = '/srv/loadreport'
+
 # HAR_SERVER = 'http://127.0.0.1:8080/har/pagelist.php?path='
 
 

@@ -2,22 +2,6 @@ var fs = require('fs');
 var WebPage = require('webpage');
 var args = require('system').args;
 var name_folder = args[3];
-var stt = 0;
-
-function convert_name(abc){
-    var name_abc = '';
-    if (abc == 0){
-        return "0000"
-    }
-    abc = abc - 1;
-    if (abc < 10)
-    {
-        name_abc = "000" + abc.toString();
-    } else {
-        name_abc = "00" + abc.toString();
-    }
-    return name_abc
-}
 
 var loadreport = {
 
@@ -486,12 +470,8 @@ var loadreport = {
             var height = screen.height;
 
             page.clipRect = { top: 0, left: 0, width: width, height: height }
-            var name_image = name_folder + '/screenshot' + this.performance.timer + '.png'
+            var name_image = 'filmstrip/' + name_folder + '/screenshot' + this.performance.timer + '.png'
             page.render(name_image);
-
-            //page.render('filmstrip/screenshot' + this.performance.timer + '.png');
-//            page.render('filmstrip/id' + convert_name(stt) + '.png');
-            stt = stt + 1;
             this.performance.count2++;
             this.performance.count1 = currentTime + (this.performance.count2 * 100);
             //subtract the time it took to render this image

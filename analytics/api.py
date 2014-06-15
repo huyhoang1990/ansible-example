@@ -207,20 +207,16 @@ def get_webpage_info(url, created_time, channel_id,
         return False
 
 
-def get_video_filmstrip(url, temporary_url, created_time, channel_id):
-    # CREATE_WEBPAGE_QUEUE.enqueue(create_filmstrip, url,
-    #                                  created_time, channel_id)
+def get_video_filmstrip(url, created_time, channel_id):
+    # phantomjs loadreport.js http://dantri.com.vn filmstrip hoanghh
+    command = 'cd %s ; sudo phantomjs loadreport.js %s filmstrip %s_%s' % \
+              (settings.LOADREPORT, url, channel_id, urlparse(url).netloc)
 
-    #chay phantomjs de gen ra file anh, convert file images than video
-    # goi ra
-    # cau hinh supervisor
+    print command
+    status, output = getstatusoutput(command)
 
-
-    dir = '/filmstrip/%s/' % url
-    cmd = "phantomjs loadreport.js %s %s" % (url, dir)
-    status, _ = commands.getstatusoutput(cmd)
-    # if status == 0:
-    #     cmd = 'ffmpeg -i ffconcat -c:v libx264 -pix_fmt yuv420p out1.mp4'
+    if status == 0:
+        print 'perfect'
 
 
 def convert_size(size):
