@@ -11,3 +11,4 @@
       - nginx
       - harviewer
       - analytics
+      - loadreport

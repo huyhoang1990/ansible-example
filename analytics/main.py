@@ -162,6 +162,9 @@ def compare_powerup():
                                  channel_id, is_slaver,
                                  is_powerup_domain=False)
 
+            #goi thẳng đến hàm filmstrip ở đây luôn
+
+
             return render_template('result_powerup.html',
                                    status='Checking...',
                                    locations=settings.LOCATIONS,

@@ -1,0 +1,13 @@
+---
+
+
+
+- name: Upload code
+  local_action: command rsync -vaz -e ssh
+                              --rsync-path='sudo rsync'
+                              --exclude='.*'
+                              --exclude='*.pyc'
+                              ../loadreport
+                              {{ server.user }}@{{ inventory_hostname }}:{{ project.root }}
+  tags:
+    - update_code

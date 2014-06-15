@@ -14,6 +14,7 @@ import math
 import urllib
 import requests
 import settings
+import commands
 import xmltodict
 
 DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
@@ -30,7 +31,7 @@ CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
 def parse_pagespeed_info(pagespeed_info):
     if pagespeed_info.has_key('error'):
         return {'pagespeed_score': 'None'}
-    
+
     pagespeed_details = pagespeed_info.get('formattedResults') \
                                       .get('ruleResults')
 
@@ -58,7 +59,7 @@ def get_pagespeed_info(url, created_time, channel_id, is_powerup_domain=None):
         pagespeed_info = requests.get(pagespeed_url, headers=headers).json()
         if pagespeed_info:
             pagespeed_info = parse_pagespeed_info(pagespeed_info)
-            
+
             if is_powerup_domain is not None:
                 pagespeed_info['is_powerup_domain'] = is_powerup_domain
 
@@ -105,7 +106,7 @@ def get_yslow_info(url, created_time, channel_id,
         command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
         print command
         status, output = getstatusoutput(command)
-        
+
         if status == 0:
             try:
                 yslow_info = xmltodict.parse(output).get('results')
@@ -115,15 +116,15 @@ def get_yslow_info(url, created_time, channel_id,
                               'total_request': 'None',
                               'yslow_score': 'None',
                               'is_powerup_domain': is_powerup_domain}
-                
+
                 push_to_browser(channel_id, yslow_info, is_slaver)
                 return False
-            
+
             if yslow_info:
                 yslow_info = parse_yslow_info(yslow_info)
                 if is_slaver:
                     yslow_info['is_slaver'] = True
-                    
+
                 if is_powerup_domain is not None:
                     yslow_info['is_powerup_domain'] = is_powerup_domain
 
@@ -182,11 +183,11 @@ def get_webpage_info(url, created_time, channel_id,
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
 
-    
+
     if not webpage_info:
         ANALYTICS.insert({'url': url,
                           'created_time': created_time})
-        
+
         CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
                                      created_time, channel_id,
                                      is_slaver, is_powerup_domain=is_powerup_domain)
@@ -204,6 +205,22 @@ def get_webpage_info(url, created_time, channel_id,
                                          is_powerup_domain=is_powerup_domain)
 
         return False
+
+
+def get_video_filmstrip(url, temporary_url, created_time, channel_id):
+    # CREATE_WEBPAGE_QUEUE.enqueue(create_filmstrip, url,
+    #                                  created_time, channel_id)
+
+    #chay phantomjs de gen ra file anh, convert file images than video
+    # goi ra
+    # cau hinh supervisor
+
+
+    dir = '/filmstrip/%s/' % url
+    cmd = "phantomjs loadreport.js %s %s" % (url, dir)
+    status, _ = commands.getstatusoutput(cmd)
+    # if status == 0:
+    #     cmd = 'ffmpeg -i ffconcat -c:v libx264 -pix_fmt yuv420p out1.mp4'
 
 
 def convert_size(size):
@@ -282,13 +299,14 @@ def get_temporary_url(powerup_url):
     info = DOMAIN.find_one({'domain': powerup_url})
     if info:
         return info.get('temporary_domain')
-    
+
     return '%s#' % powerup_url
+
 
 def set_temporary_url(powerup_url, temporary_url):
     DOMAIN.update({'domain': powerup_url},
                   {'$set': {'temporary_domain': temporary_url}},
                   upsert=True)
-    
+
     return True
-    
+
