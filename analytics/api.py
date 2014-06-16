@@ -236,8 +236,6 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
                 status, output = getstatusoutput(command)
                 print 'perfect'
 
-    # ffmpeg -i out1.mp4 -vf 'pad=2*iw:ih [left]; movie=out2.mp4 [right];[left][right] overlay=main_w/2:0' out3.mp4
-    # /srv/loadreport/filmstrip/1402828811.0_kenh14.vn
     command = "cd %s/filmstrip/%s_%s ;" \
               "sudo ffmpeg -i out.mp4 -vf 'pad=2*iw:ih [left]; movie=%s/filmstrip/%s_%s_/out.mp4 [right];[left][right] overlay=main_w/2:0' out_merge.mp4" % \
               (settings.LOADREPORT, channel_id, urlparse(powerup_url).netloc,

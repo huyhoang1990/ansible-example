@@ -3,10 +3,11 @@
 
 from rq import Queue
 from redis import Redis
+from urlparse import urlparse
 from datetime import timedelta
 from simplejson import dumps, loads
 from flask import (Flask, jsonify, request, abort,
-                   render_template, url_for, redirect)
+                   render_template, url_for, redirect, send_from_directory)
 
 import api
 import time
@@ -163,21 +164,35 @@ def compare_powerup():
             #                      is_powerup_domain=False)
 
             #goi thẳng đến hàm filmstrip ở đây luôn
-            api.get_video_filmstrip(powerup_url, temporary_url,
-                                    created_time, channel_id)
+            # api.get_video_filmstrip(powerup_url, temporary_url,
+            #                         created_time, channel_id)
+            video_path = '/srv/loadreport/filmstrip/%s_%s' % \
+                         (channel_id, urlparse(powerup_url).netloc)
 
-            return render_template('result_powerup.html',
-                                   status='Checking...',
-                                   locations=settings.LOCATIONS,
-                                   scores=scores,
-                                   channel_id=channel_id,
-                                   slaver_servers=slaver_servers,
-                                   master_server=settings.MASTER_SERVER,
-                                   master_location_id=master_location_id)
+            video_path = '/srv/loadreport/filmstrip/1402890008.17_kenh14.vn'
+
+
+            return render_template('video.html',
+                                   video_path=video_path)
+
+            # return render_template('result_powerup.html',
+            #                        status='Checking...',
+            #                        locations=settings.LOCATIONS,
+            #                        scores=scores,
+            #                        channel_id=channel_id,
+            #                        slaver_servers=slaver_servers,
+            #                        master_server=settings.MASTER_SERVER,
+            #                        master_location_id=master_location_id,
+            #                        video_path=video_path)
 
 
         abort(400)
 
+
+@app.route('/video')
+def video():
+    path = request.args.get('path')
+    return send_from_directory(path, 'out_merge.mp4')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
