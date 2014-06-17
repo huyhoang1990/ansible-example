@@ -208,12 +208,12 @@ def get_webpage_info(url, created_time, channel_id,
 
 
 def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
-    import time
-    time.sleep(5)
-    path = '/video?channel_id=%s&domain=%s' % (channel_id, powerup_url)
-    data = {'video_path': path}
-    push_to_browser(channel_id, data)
-    return True
+    # import time
+    # time.sleep(5)
+    # data = {'video_path': 'http://10.2.14.22/video?channel_id=1403002928.33&domain=http://google.com'}
+    #
+    # push_to_browser(channel_id, data)
+    # return True
 
     for url in [powerup_url, temporary_url]:
         host = urlparse(url).netloc
@@ -234,7 +234,7 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
             status, output = getstatusoutput(command)
             if status == 0:
                 command = 'cd %s/filmstrip/%s_%s; ' \
-                          'sudo ffmpeg -i concat.txt -pix_fmt yuv420p out.mp4' % \
+                          'sudo ffmpeg -i concat.txt -c:v libx264 -pix_fmt yuv420p out.mp4' % \
                           (settings.LOADREPORT, channel_id, host)
 
                 print command
@@ -250,13 +250,15 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
 
     status, output = getstatusoutput(command)
     if status == 0:
-        path = '/video?channel_id=%s&domain=%s' % (channel_id, powerup_url)
+        path = 'http://%s/video?channel_id=%s&domain=%s' % \
+               (settings.MASTER_SERVER, channel_id, powerup_url)
         data = {'video_path': path}
 
-        push_to_browser(channel_id, dumps(data))
+        push_to_browser(channel_id, data)
         return True
 
     return False
+
 
 def convert_size(size):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")

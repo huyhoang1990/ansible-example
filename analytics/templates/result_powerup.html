@@ -100,13 +100,19 @@
     <div class="row server-row">
         <div class="col-xs-9">
             <div class="row">
-                <div class="col col-xs-4">
-                    <div id="loading-filmstrip">Loading Filmstrip</div>
-                    <video id="video" width="100%" style="display: none;" height="100%" preload="auto" controls="controls" mediagroup="">
-                        <source id="video_filmstrip" src="" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
+                <div id="loading-filmstrip">Loading Filmstrip</div>
+                <!--<video id="video" width="100%" style="display: none;" height="100%" preload="auto" controls="controls" autoplay="" mediagroup="group">-->
+                    <!--<source id="video_filmstrip" src="" type="video/mp4">-->
+                    <!--<source id="video_filmstrip1" src="" type="video/ogg">-->
+                    <!--Your browser does not support the video tag.-->
+                <!--</video>-->
+
+                <video id="video" width="100%" style="display: block;" name="media" height="100%" preload="auto" controls autoplay>
+                    <source id="video_filmstrip" src="" type="video/mp4">
+                    <source id="video_filmstrip1" src="" type="video/ogg">
+                    Your browser does not support the video tag.
+                </video>
+
             </div>
         </div>
         <div class="col col-xs-3 diff"></div>
@@ -126,8 +132,12 @@
         console.log(data);
         if (data.hasOwnProperty('video_path') == true) {
             var src = data['video_path'];
-            $("#video").find("#video_filmstrip").attr("src", src)
+
+            $("#video").find("#video_filmstrip").attr("src", src);
+            $("#video").find("#video_filmstrip1").attr("src", src);
             $('#video').css("display", "block");
+            video.load();
+            video.pause();
             return true;
         }
         if (data.hasOwnProperty('is_slaver') == false){

@@ -7,7 +7,7 @@ from urlparse import urlparse
 from datetime import timedelta
 from simplejson import dumps, loads
 from flask import (Flask, jsonify, request, abort,
-                   render_template, url_for, redirect, send_from_directory)
+                   render_template, make_response, redirect, send_from_directory)
 
 import api
 import time
@@ -194,10 +194,10 @@ def compare_powerup():
 def video():
     channel_id = request.args.get('channel_id')
     domain = request.args.get('domain')
-    path = request.args.get('path')
     domain = urlparse(domain).netloc
     path = '/srv/loadreport/filmstrip/%s_%s' % (channel_id, domain)
     return send_from_directory(path, 'out_merge.mp4')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

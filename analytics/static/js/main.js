@@ -46,7 +46,13 @@ $(document).ready(function(e) {
     });
 
 
-
+    $('#video').on('click', function(){
+        if (video.pause()) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    });
 
 
 })
