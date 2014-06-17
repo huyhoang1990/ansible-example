@@ -208,7 +208,12 @@ def get_webpage_info(url, created_time, channel_id,
 
 
 def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
-
+    import time
+    time.sleep(5)
+    path = '/video?channel_id=%s&domain=%s' % (channel_id, powerup_url)
+    data = {'video_path': path}
+    push_to_browser(channel_id, data)
+    return True
 
     for url in [powerup_url, temporary_url]:
         host = urlparse(url).netloc
@@ -241,12 +246,17 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
               (settings.LOADREPORT, channel_id, urlparse(powerup_url).netloc,
                settings.LOADREPORT, channel_id, urlparse(temporary_url).netloc)
 
-
     print command
 
     status, output = getstatusoutput(command)
+    if status == 0:
+        path = '/video?channel_id=%s&domain=%s' % (channel_id, powerup_url)
+        data = {'video_path': path}
 
-    return True
+        push_to_browser(channel_id, dumps(data))
+        return True
+
+    return False
 
 def convert_size(size):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")

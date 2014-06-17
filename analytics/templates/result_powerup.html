@@ -97,6 +97,21 @@
     {% endfor %}
 
 
+    <div class="row server-row">
+        <div class="col-xs-9">
+            <div class="row">
+                <div class="col col-xs-4">
+                    <div id="loading-filmstrip">Loading Filmstrip</div>
+                    <video id="video" width="100%" style="display: none;" height="100%" preload="auto" controls="controls" mediagroup="">
+                        <source id="video_filmstrip" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+        <div class="col col-xs-3 diff"></div>
+    </div>
+
 
 </section>
 
@@ -109,7 +124,12 @@
         data = JSON.parse(text);
         var host = window.location.hostname;
         console.log(data);
-
+        if (data.hasOwnProperty('video_path') == true) {
+            var src = data['video_path'];
+            $("#video").find("#video_filmstrip").attr("src", src)
+            $('#video').css("display", "block");
+            return true;
+        }
         if (data.hasOwnProperty('is_slaver') == false){
             for (var key in data) {
                 if (data['is_powerup_domain'] == true) {
