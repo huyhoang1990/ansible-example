@@ -209,8 +209,8 @@ def get_webpage_info(url, created_time, channel_id,
 
 def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
     # import time
-    # time.sleep(5)
-    # data = {'video_path': 'http://10.2.14.22/video?channel_id=1403002928.33&domain=http://google.com'}
+    # time.sleep(10)
+    # data = {'video_path': 'http://10.2.14.22/video?channel_id=1403034335.46&domain=http://github.com'}
     #
     # push_to_browser(channel_id, data)
     # return True
@@ -252,7 +252,9 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
     if status == 0:
         path = 'http://%s/video?channel_id=%s&domain=%s' % \
                (settings.MASTER_SERVER, channel_id, powerup_url)
+        print path
         data = {'video_path': path}
+        print data
 
         push_to_browser(channel_id, data)
         return True
