@@ -110,6 +110,21 @@
 
             <div class="block-video">
 
+                <!--<span style="float: left; margin-left: 20%">Original</span>-->
+                <!--<span style="float: right; margin-right: 20%">PowerUp</span>-->
+                <!--<div id="block-video">-->
+                <!--<video id="video" width="100%" style="display: block;" height="100%" controls="controls">-->
+                <!--<source id="video_filmstrip" src="" type="video/mp4">-->
+                <!--<source id="video_filmstrip1" src="" type="video/ogg">-->
+                <!--Your browser does not support the video tag.-->
+                <!--</video><button id="replay">Replay</button></div>-->
+                <!--<script>-->
+                     <!--$("#replay").on("click", function(){-->
+                        <!--console.log("vaovaovao");-->
+                        <!--video.play();-->
+                    <!--});-->
+                <!--</script>-->
+
             </div>
 
         </div>
@@ -120,6 +135,7 @@
 
     var master_location_id = '{{ master_location_id }}';
 
+
     function messageReceived(text, id, channel) {
         data = JSON.parse(text);
         var host = window.location.hostname;
@@ -129,17 +145,18 @@
             var controls = $('<span style="float: left; margin-left: 20%">Original</span>' +
                     '<span style="float: right; margin-right: 20%">PowerUp</span>' +
                     '<div id="block-video">' +
-                    '<video id="video" width="100%" style="display: block;" height="100%" preload="auto" controls="controls" autoplay>' +
+                    '<video id="video" width="100%" style="display: block;" height="100%">' +
                     '<source id="video_filmstrip" src="" type="video/mp4">' +
                     '<source id="video_filmstrip1" src="" type="video/ogg">' +
                     'Your browser does not support the video tag.' +
-                    '</video></div>')
+                    '</video><button id="replay" style="color: #ff7012; background: white;margin-top: 20px;border: 1px solid #ff7012;border-radius: 10px;">Replay</button></div><script>$("#replay").on("click", function(){console.log("hohoho");document.getElementById("video").load();document.getElementById("video").play();})\;<\/script>');
 
             controls.find("#video_filmstrip").attr("src", src);
             controls.find("#video_filmstrip1").attr("src", src);
             $('.block-video').append(controls);
             $('.filmstrip-loading').css('display','none');
-
+            //loop video
+            video.play();
             return true;
         }
         if (data.hasOwnProperty('is_slaver') == false){

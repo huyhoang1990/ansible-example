@@ -47,14 +47,7 @@ $(document).ready(function(e) {
     });
 
 
-    $('#block-video').on('click', function(){
-        console.log('vaovaovao');
-        if ($('#video')[0].pause()) {
-            $('#video')[0].play();
-        } else {
-            $('#video')[0].pause();
-        }
-    });
+
 
 
 })
