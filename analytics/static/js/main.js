@@ -18,6 +18,7 @@ $(document).ready(function(e) {
             }
 
             if (path_name == '/powerup') {
+                var filmtrip_loading = $('.filmstrip-loading').css('display', 'block');
                 var class_name_1 = '.' + scores[index] + '1';
                 var class_name_2 = '.' + scores[index] + '2';
                 $(class_name_1).empty();
