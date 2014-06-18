@@ -155,27 +155,17 @@ def compare_powerup():
                 if locations[server]['host'] == settings.MASTER_SERVER:
                     master_location_id = locations[server]['id']
 
-            # api.get_webpage_info(powerup_url, created_time,
-            #                      channel_id, is_slaver,
-            #                      is_powerup_domain=True)
-            #
-            # api.get_webpage_info(temporary_url, created_time,
-            #                      channel_id, is_slaver,
-            #                      is_powerup_domain=False)
+            api.get_webpage_info(powerup_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=True)
+
+            api.get_webpage_info(temporary_url, created_time,
+                                 channel_id, is_slaver,
+                                 is_powerup_domain=False)
 
 
             api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip, powerup_url,
                                              temporary_url, created_time, channel_id)
-
-            # video_path = '/srv/loadreport/filmstrip/%s_%s' % \
-            #              (channel_id, urlparse(powerup_url).netloc)
-            #
-            # video_path = '/srv/loadreport/filmstrip/1402890008.17_kenh14.vn'
-            #
-            #
-            # return render_template('video.html',
-            #                        channel_id=channel_id,
-            #                        domain=powerup_url)
 
             return render_template('result_powerup.html',
                                    status='Checking...',
