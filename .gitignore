@@ -1,0 +1,11 @@
+*~
+.*
+.*.sw?
+*.pyc
+*.pyo
+.DS_Store
+
+# Bỏ file deployment/development ra khỏi git,
+# vì mỗi developer dùng IP server test khác nhau
+deployment/development
+
