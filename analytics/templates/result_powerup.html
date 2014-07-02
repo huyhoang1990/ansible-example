@@ -19,7 +19,6 @@
     </div>
 </header>
 
-
 <section>
 
     {% for score in scores %}
@@ -51,8 +50,6 @@
         </div>
     {% endfor %}
 
-
-
     <div class="row server-row">
         <div class="col-xs-9">
             <div class="row">
@@ -61,7 +58,6 @@
         </div>
         <div class="col col-xs-3 diff"></div>
     </div>
-
 
     {% for location in locations %}
         <div class="row server-row">
@@ -132,9 +128,7 @@
 
 <script type="text/javascript" language="javascript" charset="utf-8">
     var slaver_servers = {{ slaver_servers | safe }}
-
     var master_location_id = '{{ master_location_id }}';
-
 
     function messageReceived(text, id, channel) {
         data = JSON.parse(text);
@@ -200,7 +194,6 @@
                 }
             }
         }
-
     };
 
     var pushstream = new PushStream({
@@ -213,7 +206,4 @@
     pushstream.addChannel('{{ channel_id }}');
     pushstream.connect();
 
-
 </script>
-
-

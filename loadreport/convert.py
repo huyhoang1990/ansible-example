@@ -6,7 +6,6 @@ import os
 import re
 
 
-
 def convert_image(folder):
     images = os.listdir(folder)
 
@@ -17,13 +16,10 @@ def convert_image(folder):
             display_times.append(int(groups[0]))
 
     display_times = sorted(display_times)
-    # display_times = sorted([int(re.findall('\d+', image)[0])
-    #                  for image in images])
 
     print display_times
     duration_times = []
 
-    # duration_times.append(display_times[0])
     last_index = len(display_times) - 1
 
     for index, value in enumerate(display_times):
@@ -35,7 +31,6 @@ def convert_image(folder):
     print duration_times
 
     display_times.pop(0)
-    # f = open('concat.txt', 'a')
     f = open('%sconcat.txt' % folder, 'w')
     f.write('ffconcat version 1.0\n')
     f.write('file screenshot0.png\n')
@@ -50,4 +45,3 @@ def convert_image(folder):
 if __name__ == '__main__':
     folder = sys.argv[1]
     convert_image(folder)
-

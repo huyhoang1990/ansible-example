@@ -5,7 +5,7 @@ from rq import Queue
 from redis import Redis
 from datetime import datetime
 from urlparse import urlparse
-from simplejson import dumps, loads
+from simplejson import dumps
 from commands import getstatusoutput
 from pymongo import MongoClient as MongoDB
 
@@ -14,8 +14,8 @@ import math
 import urllib
 import requests
 import settings
-import commands
 import xmltodict
+
 
 DATABASE = MongoDB(settings.MONGOD_SERVERS)[settings.DATABASE_NAME]
 ANALYTICS = DATABASE.analytics
@@ -29,7 +29,7 @@ CREATE_WEBPAGE_QUEUE = Queue('crawl_webpage',
 
 
 def parse_pagespeed_info(pagespeed_info):
-    if pagespeed_info.has_key('error'):
+    if 'error' in pagespeed_info:
         return {'pagespeed_score': 'None'}
 
     pagespeed_details = pagespeed_info.get('formattedResults') \
@@ -66,8 +66,9 @@ def get_pagespeed_info(url, created_time, channel_id, is_powerup_domain=None):
             push_to_browser(channel_id, pagespeed_info)
 
             if pagespeed_info:
-                webpage_info = ANALYTICS.find_one({'url': url,
-                                                   'created_time': created_time})
+                webpage_info = \
+                    ANALYTICS.find_one({'url': url,
+                                        'created_time': created_time})
                 if webpage_info:
                     ANALYTICS.update({'url': url,
                                       'created_time': created_time},
@@ -92,7 +93,7 @@ def parse_yslow_info(yslow_info):
 
     yslow_details = yslow_info.get('g')
     for detail in yslow_details:
-        if yslow_details[detail].has_key('score'):
+        if 'score' in yslow_details[detail]:
             result[detail] = yslow_details[detail].get('score')
         else:
             result[detail] = 'n/a'
@@ -103,7 +104,9 @@ def parse_yslow_info(yslow_info):
 def get_yslow_info(url, created_time, channel_id,
                    is_slaver, is_powerup_domain=None):
     if url:
-        command = 'phantomjs %s --info all --format xml %s' % (settings.YSLOW_JS, url)
+        command = 'phantomjs %s --info all --format xml %s' \
+                  % (settings.YSLOW_JS, url)
+
         print command
         status, output = getstatusoutput(command)
 
@@ -131,8 +134,9 @@ def get_yslow_info(url, created_time, channel_id,
                 push_to_browser(channel_id, yslow_info, is_slaver)
 
                 if yslow_info:
-                    webpage_info = ANALYTICS.find_one({'url': url,
-                                                       'created_time': created_time})
+                    webpage_info = \
+                        ANALYTICS.find_one({'url': url,
+                                           'created_time': created_time})
                     if webpage_info:
                         ANALYTICS.update({'url': url,
                                           'created_time': created_time},
@@ -165,7 +169,6 @@ def get_harfile_info(url, created_time, channel_id):
                 ANALYTICS.update({'url': url,
                                   'created_time': created_time},
                                  {'$set': {'harfile': source_file}})
-
             else:
                 ANALYTICS.insert({'url': url,
                                   'created_time': created_time,
@@ -178,11 +181,9 @@ def get_harfile_info(url, created_time, channel_id):
 
 def get_webpage_info(url, created_time, channel_id,
                      is_slaver, is_powerup_domain=None):
-
     created_time = int(created_time)
     webpage_info = ANALYTICS.find_one({'url': url,
                                        'created_time': created_time})
-
 
     if not webpage_info:
         ANALYTICS.insert({'url': url,
@@ -190,12 +191,13 @@ def get_webpage_info(url, created_time, channel_id,
 
         CREATE_WEBPAGE_QUEUE.enqueue(get_yslow_info, url,
                                      created_time, channel_id,
-                                     is_slaver, is_powerup_domain=is_powerup_domain)
+                                     is_slaver,
+                                     is_powerup_domain=is_powerup_domain)
 
         if not is_slaver:
             CREATE_WEBPAGE_QUEUE.enqueue(get_pagespeed_info, url,
-                                        created_time, channel_id,
-                                        is_powerup_domain=is_powerup_domain)
+                                         created_time, channel_id,
+                                         is_powerup_domain=is_powerup_domain)
 
             # CREATE_WEBPAGE_QUEUE.enqueue(get_harfile_info, url,
             #                              created_time, channel_id)
@@ -208,13 +210,6 @@ def get_webpage_info(url, created_time, channel_id,
 
 
 def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
-    # import time
-    # time.sleep(10)
-    # data = {'video_path': 'http://10.2.14.22/video?channel_id=1403034335.46&domain=http://github.com'}
-    #
-    # push_to_browser(channel_id, data)
-    # return True
-
     for url in [powerup_url, temporary_url]:
         host = urlparse(url).netloc
         if url == temporary_url:
@@ -242,7 +237,9 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
                 print 'perfect'
 
     command = "cd %s/filmstrip/%s_%s ;" \
-              "sudo ffmpeg -i out.mp4 -vf 'pad=2*iw:ih [left]; movie=%s/filmstrip/%s_%s_/out.mp4 [right];[left][right] overlay=main_w/2:0' out_merge.mp4" % \
+              "sudo ffmpeg -i out.mp4 -vf 'pad=2*iw:ih [left]; " \
+              "movie=%s/filmstrip/%s_%s_/out.mp4 [right];" \
+              "[left][right] overlay=main_w/2:0' out_merge.mp4" % \
               (settings.LOADREPORT, channel_id, urlparse(powerup_url).netloc,
                settings.LOADREPORT, channel_id, urlparse(temporary_url).netloc)
 
@@ -279,11 +276,11 @@ def convert_size(size):
 def push_to_browser(channel_id, data, is_slaver=None):
     if is_slaver:
         cmd = "curl -s -v -X POST 'http://%s/pub?id=%s' -d '%s'" % \
-                (settings.MASTER_SERVER, channel_id, dumps(data))
+              (settings.MASTER_SERVER, channel_id, dumps(data))
 
     else:
         cmd = "curl -s -v -X POST 'http://localhost/pub?id=%s' -d '%s'" % \
-                (channel_id, dumps(data))
+              (channel_id, dumps(data))
     print cmd
 
     os.system(cmd)
@@ -303,12 +300,11 @@ def is_webpage(url):
         return None
 
 
-def post_to_slaver_server(url, created_time, channel_id, is_powerup_domain=None):
+def post_to_slaver_server(url, created_time, channel_id,
+                          is_powerup_domain=None):
+
     slaver_servers = get_slaver_servers()
     for server_name in slaver_servers:
-
-
-
         host = 'http://%s' % slaver_servers[server_name]['host']
 
         params = {'called_from': 'master',
@@ -348,4 +344,3 @@ def set_temporary_url(powerup_url, temporary_url):
                   upsert=True)
 
     return True
-

@@ -1,13 +1,11 @@
 #! coding: utf-8
 
 
-from rq import Queue
-from redis import Redis
 from urlparse import urlparse
 from datetime import timedelta
-from simplejson import dumps, loads
-from flask import (Flask, jsonify, request, abort,
-                   render_template, make_response, redirect, send_from_directory)
+from simplejson import dumps
+from flask import (Flask, request, abort,
+                   render_template, send_from_directory)
 
 import api
 import time
@@ -163,9 +161,9 @@ def compare_powerup():
                                  channel_id, is_slaver,
                                  is_powerup_domain=False)
 
-
-            api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip, powerup_url,
-                                             temporary_url, created_time, channel_id)
+            api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip,
+                                             powerup_url, temporary_url,
+                                             created_time, channel_id)
 
             return render_template('result_powerup.html',
                                    status='Checking...',
@@ -175,7 +173,6 @@ def compare_powerup():
                                    slaver_servers=slaver_servers,
                                    master_server=settings.MASTER_SERVER,
                                    master_location_id=master_location_id)
-
 
         abort(400)
 

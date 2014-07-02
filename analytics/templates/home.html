@@ -32,6 +32,7 @@
                     font-size:0px;
                     line-height:0px;
                 }
+
                 @media print{body .SnapABug_Button {
                     display:none;
                 }
@@ -71,6 +72,7 @@
                 </div>
             </form>
         </div>
+
         <div class="container">
             <div id="results">
                 {% if render_powerup %}
@@ -78,11 +80,8 @@
                 {% else %}
                     {% include 'result_one_page.html' %}
                 {% endif %}
-
-
             </div>
         </div>
-
 
         <script>
             function post_url(url){
@@ -121,10 +120,7 @@
 
                     }
                 )
-
-
                 return false;
-
             }
 
             var url = $('#httper').find('input')[0].value;
@@ -133,10 +129,6 @@
             }
 
         </script>
-
-
-
-
 
     </body>
 </html>

@@ -1,6 +1,3 @@
-
-
-
 # Getting Started
 
 1. Pull code về
