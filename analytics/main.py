@@ -89,70 +89,117 @@ def home():
         abort(400)
 
 
+# @app.route('/powerup', methods=['GET', 'POST'])
+# def compare_powerup():
+#     scores = {
+#         'Page Speed Grade': 'pagespeed_score',
+#         'Yslow Grade': 'yslow_score',
+#         'Total Page Size': 'page_size',
+#         'Total # of requests': 'total_request'
+#     }
+#
+#     if request.method == 'GET':
+#         domain = request.args.get('domain')
+#         temporary_domain = request.args.get('domain_demo')
+#         if domain and temporary_domain:
+#             api.set_temporary_url(domain, temporary_domain)
+#
+#         render_powerup = True
+#         return render_template('home.html',
+#                                render_powerup=render_powerup,
+#                                status='Ready',
+#                                scores=scores,
+#                                locations=settings.LOCATIONS,
+#                                domain=domain,
+#                                temporary_domain=temporary_domain)
+#
+#     else:
+#         powerup_url = request.form.get('powerup_url')
+#         is_slaver = None
+#
+#         # Xử lý trường hợp request post từ master tới slave
+#         if not powerup_url:
+#             called_from = request.args.get('called_from')
+#             if called_from:
+#                 is_slaver = True
+#                 created_time = request.args.get('created_time')
+#                 channel_id = request.args.get('channel_id')
+#                 powerup_url = request.args.get('url')
+#                 temporary_url = api.get_temporary_url(powerup_url)
+#                 api.get_webpage_info(powerup_url, created_time,
+#                                      channel_id, is_slaver,
+#                                      is_powerup_domain=True)
+#
+#                 api.get_webpage_info(temporary_url, created_time,
+#                                      channel_id, is_slaver,
+#                                      is_powerup_domain=False)
+#
+#                 return 'OK'
+#
+#         if powerup_url:
+#             powerup_url = powerup_url.strip()
+#
+#             temporary_url = api.get_temporary_url(powerup_url)
+#
+#             channel_id = str(time.time())
+#             created_time = int(time.time())
+#
+#             slaver_servers = api.get_slaver_servers()
+#             locations = settings.LOCATIONS
+#
+#             master_location_id = None
+#
+#             for server in locations:
+#                 if locations[server]['host'] == settings.MASTER_SERVER:
+#                     master_location_id = locations[server]['id']
+#
+#             api.get_webpage_info(powerup_url, created_time,
+#                                  channel_id, is_slaver,
+#                                  is_powerup_domain=True)
+#
+#             api.get_webpage_info(temporary_url, created_time,
+#                                  channel_id, is_slaver,
+#                                  is_powerup_domain=False)
+#
+#             api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip,
+#                                              powerup_url, temporary_url,
+#                                              created_time, channel_id)
+#
+#             return render_template('result_powerup.html',
+#                                    status='Checking...',
+#                                    locations=settings.LOCATIONS,
+#                                    scores=scores,
+#                                    channel_id=channel_id,
+#                                    slaver_servers=slaver_servers,
+#                                    master_server=settings.MASTER_SERVER,
+#                                    master_location_id=master_location_id)
+#
+#         abort(400)
+
+
 @app.route('/powerup', methods=['GET', 'POST'])
 def compare_powerup():
     scores = {
-        'Page Speed Grade': 'pagespeed_score',
-        'Yslow Grade': 'yslow_score',
-        'Total Page Size': 'page_size',
-        'Total # of requests': 'total_request'
+            'Page Speed Grade': 'pagespeed_score',
+            'Yslow Grade': 'yslow_score',
+            'Total Page Size': 'page_size',
+            'Total # of requests': 'total_request'
     }
 
-    if request.method == 'GET':
-        domain = request.args.get('domain')
-        temporary_domain = request.args.get('domain_demo')
-        if domain and temporary_domain:
-            api.set_temporary_url(domain, temporary_domain)
 
-        render_powerup = True
-        return render_template('home.html',
-                               render_powerup=render_powerup,
-                               status='Ready',
-                               scores=scores,
-                               locations=settings.LOCATIONS,
-                               domain=domain,
-                               temporary_domain=temporary_domain)
+    powerup_url = request.args.get('original_url')
+    temporary_url = request.args.get('demo_url')
+    is_slaver = None
 
-    else:
-        powerup_url = request.form.get('powerup_url')
-        is_slaver = None
-
-        # Xử lý trường hợp request post từ master tới slave
-        if not powerup_url:
-            called_from = request.args.get('called_from')
-            if called_from:
-                is_slaver = True
-                created_time = request.args.get('created_time')
-                channel_id = request.args.get('channel_id')
-                powerup_url = request.args.get('url')
-                temporary_url = api.get_temporary_url(powerup_url)
-                api.get_webpage_info(powerup_url, created_time,
-                                     channel_id, is_slaver,
-                                     is_powerup_domain=True)
-
-                api.get_webpage_info(temporary_url, created_time,
-                                     channel_id, is_slaver,
-                                     is_powerup_domain=False)
-
-                return 'OK'
-
-        if powerup_url:
-            powerup_url = powerup_url.strip()
-
-            temporary_url = api.get_temporary_url(powerup_url)
-
-            channel_id = str(time.time())
-            created_time = int(time.time())
-
-            slaver_servers = api.get_slaver_servers()
-            locations = settings.LOCATIONS
-
-            master_location_id = None
-
-            for server in locations:
-                if locations[server]['host'] == settings.MASTER_SERVER:
-                    master_location_id = locations[server]['id']
-
+    # Xử lý trường hợp request post từ master tới slave
+    if not powerup_url:
+        called_from = request.args.get('called_from')
+        if called_from:
+            is_slaver = True
+            created_time = request.args.get('created_time')
+            channel_id = request.args.get('channel_id')
+            powerup_url = request.args.get('url')
+            # temporary_url = api.get_temporary_url(powerup_url)
             api.get_webpage_info(powerup_url, created_time,
                                  channel_id, is_slaver,
                                  is_powerup_domain=True)
@@ -161,20 +208,59 @@ def compare_powerup():
                                  channel_id, is_slaver,
                                  is_powerup_domain=False)
 
-            api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip,
-                                             powerup_url, temporary_url,
-                                             created_time, channel_id)
+            return 'OK'
 
-            return render_template('result_powerup.html',
-                                   status='Checking...',
-                                   locations=settings.LOCATIONS,
-                                   scores=scores,
-                                   channel_id=channel_id,
-                                   slaver_servers=slaver_servers,
-                                   master_server=settings.MASTER_SERVER,
-                                   master_location_id=master_location_id)
+    if powerup_url:
+        powerup_url = powerup_url.strip()
 
-        abort(400)
+        # temporary_url = api.get_temporary_url(powerup_url)
+
+        channel_id = str(time.time())
+        created_time = int(time.time())
+
+        slaver_servers = api.get_slaver_servers()
+        locations = settings.LOCATIONS
+
+        master_location_id = None
+
+        for server in locations:
+            if locations[server]['host'] == settings.MASTER_SERVER:
+                master_location_id = locations[server]['id']
+
+        api.get_webpage_info(powerup_url, created_time,
+                             channel_id, is_slaver,
+                             is_powerup_domain=True)
+
+        api.get_webpage_info(temporary_url, created_time,
+                             channel_id, is_slaver,
+                             is_powerup_domain=False)
+
+        api.CREATE_WEBPAGE_QUEUE.enqueue(api.get_video_filmstrip,
+                                         powerup_url, temporary_url,
+                                         created_time, channel_id)
+
+        # return render_template('result_powerup.html',
+        #                        status='Checking...',
+        #                        locations=settings.LOCATIONS,
+        #                        scores=scores,
+        #                        channel_id=channel_id,
+        #                        slaver_servers=slaver_servers,
+        #                        master_server=settings.MASTER_SERVER,
+        #                        master_location_id=master_location_id)
+        return render_template('home.html',
+                               render_powerup=True,
+                               status='Checking...',
+                               channel_id=channel_id,
+                               scores=scores,
+                               slaver_servers=slaver_servers,
+                               master_server=settings.MASTER_SERVER,
+                               locations=settings.LOCATIONS,
+                               domain=powerup_url,
+                               master_location_id=master_location_id,
+                               temporary_domain=temporary_url)
+
+
+    abort(400)
 
 
 @app.route('/video')
