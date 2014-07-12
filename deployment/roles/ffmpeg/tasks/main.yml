@@ -1,0 +1,176 @@
+#---
+#
+#
+#- name: Add source list repo
+#  shell: echo "deb http://us.archive.ubuntu.com/ubuntu saucy main multiverse" >> /etc/apt/sources.list
+#  sudo: True
+#
+#- name: Update repositories cache
+#  apt: update_cache=yes cache_valid_time=7776000
+#  ignore_errors: True
+#  sudo: True
+#
+#
+#- name: Installing necessary for mmpeg
+#  apt: pkg={{ item }} state=present
+#  with_items:
+#    - checkinstall
+#    - yasm
+#    - texi2html
+#    - libfaac-dev
+#    - libfaad-dev
+#    - libmp3lame-dev
+#    - libsdl1.2-dev
+#    - libtheora-dev
+#    - libx11-dev
+#    - libxvidcore4-dev
+#    - zlib1g-dev
+#    - libx264-dev
+#  sudo: True
+#
+#
+#- name: Upload souce x264
+#  copy: src=x264.tar.gz
+#        dest=/home/{{ server.user }}/x264.tar.gz
+#  register: x264
+#  tags:
+#    - x264
+#
+#
+#- name: Extract x264
+#  command: chdir=/home/{{ server.user }}/
+#           tar zxvf x264.tar.gz
+#  when: x264.changed
+#  tags:
+#    - x264
+#
+#
+#- name: Upload souce ffmpeg
+#  copy: src=ffmpeg.tar.gz
+#        dest=/home/{{ server.user }}/ffmpeg.tar.gz
+#  register: ffmpeg
+#  tags:
+#    - ffmpeg
+#
+#
+#- name: Extract ffmpeg
+#  command: chdir=/home/{{ server.user }}/
+#           tar zxvf ffmpeg.tar.gz
+#  when: ffmpeg.changed
+#  tags:
+#    - ffmpeg
+#
+#
+#- name: Install x264
+#  shell: chdir=/home/{{ server.user }}/x264/
+#           ./configure
+#           && make
+#           && checkinstall --fstrans=no --install=yes --pkgname=x264 --pkgversion "1:0.svn`date +%Y%m%d`-0.0ubuntu1" --default
+#  sudo: True
+#  tags:
+#    - x264
+#
+#
+#- name: Install ffmpeg
+#  shell: chdir=/home/{{ server.user }}/ffmpeg
+#          ./configure --enable-gpl --enable-nonfree --enable-pthreads --enable-libfaac --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+#          && make
+#          && checkinstall --fstrans=no --install=yes --pkgname=ffmpeg --pkgversion "3:0.svn`date +%Y%m%d`-12ubuntu3" --default
+#  sudo: True
+#  tags:
+#    - install_ffmpeg
+
+
+
+
+
+
+
+
+
+
+---
+
+
+- name: Add source list repo
+  shell: echo "deb http://us.archive.ubuntu.com/ubuntu saucy main multiverse" >> /etc/apt/sources.list
+  sudo: True
+
+- name: Update repositories cache
+  apt: update_cache=yes cache_valid_time=7776000
+  ignore_errors: True
+  sudo: True
+
+
+- name: Installing necessary for mmpeg
+  apt: pkg={{ item }} state=present
+  with_items:
+    - build-essential
+    - subversion
+    - git-core
+    - checkinstall
+    - texi2html
+    - libfaac-dev
+    - libopencore-amrnb-dev
+    - libopencore-amrwb-dev
+    - libsdl1.2-dev
+    - libtheora-dev
+    - libvorbis-dev
+    - libx11-dev
+    - libxfixes-dev
+    - libxvidcore-dev
+    - zlib1g-dev
+    - libavcodec-dev
+  sudo: True
+
+
+- name: Upload souce x264
+  copy: src=x264.tar.gz
+        dest=/home/{{ server.user }}/x264.tar.gz
+  register: x264
+  tags:
+    - x264
+
+
+- name: Extract x264
+  command: chdir=/home/{{ server.user }}/
+           tar zxvf x264.tar.gz
+  when: x264.changed
+  tags:
+    - x264
+
+
+- name: Upload souce ffmpeg
+  copy: src=ffmpeg.tar.gz
+        dest=/home/{{ server.user }}/ffmpeg.tar.gz
+  register: ffmpeg
+  tags:
+    - ffmpeg
+
+
+- name: Extract ffmpeg
+  command: chdir=/home/{{ server.user }}/
+           tar zxvf ffmpeg.tar.gz
+  when: ffmpeg.changed
+  tags:
+    - ffmpeg
+
+
+- name: Install x264
+  shell: chdir=/home/{{ server.user }}/x264/
+           ./configure --enable-static --disable-opencl
+           && make
+           && checkinstall --pkgname=x264 --default --pkgversion="3:$(./version.sh | awk -F'[" ]' '/POINT/{print $4"+git"$5}')" --backup=no --deldoc=yes
+  sudo: True
+  tags:
+    - x264
+
+
+- name: Install ffmpeg
+  shell: chdir=/home/{{ server.user }}/ffmpeg
+          ./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxvid --enable-x11grab --enable-libmp3lame
+          && make
+          && checkinstall --pkgname=ffmpeg --pkgversion="5:$(./version.sh)" --backup=no --deldoc=yes --default hash x264 ffmpeg ffplay ffprobe
+  sudo: True
+  tags:
+    - install_ffmpeg

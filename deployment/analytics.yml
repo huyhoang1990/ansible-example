@@ -4,6 +4,7 @@
 - hosts: analytics
   gather_facts: no
   roles:
+      - ffmpeg
       - common
       - redis
       - supervisor
