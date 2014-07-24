@@ -16,7 +16,7 @@ def convert_image(folder):
             display_times.append(int(groups[0]))
 
     display_times = sorted(display_times)
-
+    display_times_buf = display_times[:]
     print display_times
     duration_times = []
 
@@ -33,9 +33,16 @@ def convert_image(folder):
     display_times.pop(0)
     f = open('%sconcat.txt' % folder, 'w')
     f.write('ffconcat version 1.0\n')
-    f.write('file screenshot0.png\n')
-    f.write('duration 0\n')
-    f.write('file screenshot0.png\n')
+
+    if os.path.isfile('%sscreenshot0.png' % folder):
+        f.write('file screenshot0.png\n')
+        f.write('duration 0\n')
+        f.write('file screenshot0.png\n')
+    else:
+        f.write('file screenshot-%s.png\n' % display_times_buf[0])
+        f.write('duration 0.%s\n' % display_times_buf[0])
+        f.write('file screenshot-%s.png\n' % display_times_buf[0])
+
     for index, duration_time in enumerate(duration_times):
         f.write('duration %s \n' % float(duration_time / 1000))
         f.write('file screenshot-%s.png \n' % display_times[index])

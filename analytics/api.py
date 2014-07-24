@@ -225,16 +225,19 @@ def get_video_filmstrip(powerup_url, temporary_url, created_time, channel_id):
             command = 'cd %s; sudo python convert.py %s/filmstrip/%s_%s/' % \
                       (settings.LOADREPORT, settings.LOADREPORT,
                        channel_id, host)
-
+            print command
             status, output = getstatusoutput(command)
             if status == 0:
                 command = 'cd %s/filmstrip/%s_%s; ' \
                           'sudo ffmpeg -i concat.txt -c:v libx264 -pix_fmt yuv420p out.mp4' % \
                           (settings.LOADREPORT, channel_id, host)
-
                 print command
+
                 status, output = getstatusoutput(command)
-                print 'perfect'
+                print 'statussssssssssss:  ', status
+                print 'outputttttttt:', output
+                if status == 0:
+                    print 'perfect'
 
     command = "cd %s/filmstrip/%s_%s ;" \
               "sudo ffmpeg -i out.mp4 -vf 'pad=2*iw:ih [left]; " \
