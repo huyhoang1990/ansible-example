@@ -180,12 +180,11 @@ def home():
 @app.route('/powerup', methods=['GET', 'POST'])
 def compare_powerup():
     scores = {
-            'Page Speed Grade': 'pagespeed_score',
-            'Yslow Grade': 'yslow_score',
-            'Total Page Size': 'page_size',
-            'Total # of requests': 'total_request'
+        'Page Speed Grade': 'pagespeed_score',
+        'Yslow Grade': 'yslow_score',
+        'Total Page Size': 'page_size',
+        'Total # of requests': 'total_request'
     }
-
 
     powerup_url = request.args.get('original_url')
     temporary_url = request.args.get('demo_url')
@@ -258,7 +257,6 @@ def compare_powerup():
                                domain=powerup_url,
                                master_location_id=master_location_id,
                                temporary_domain=temporary_url)
-
 
     abort(400)
 
